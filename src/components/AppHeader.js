@@ -15,16 +15,8 @@ import {
   useColorModes,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import {
-  cilBell,
-  cilContrast,
-  cilEnvelopeOpen,
-  cilList,
-  cilMenu,
-  cilMoon,
-  cilSun,
-} from '@coreui/icons'
-
+import { cilContrast, cilMenu, cilMoon, cilSun } from '@coreui/icons'
+import { cibOpsgenie } from '@coreui/icons'
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 
@@ -54,30 +46,7 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>
-              Dashboard
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Users</CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Settings</CNavLink>
-          </CNavItem>
-        </CHeaderNav>
-        <CHeaderNav className="ms-auto">
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilBell} size="lg" />
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilList} size="lg" />
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilEnvelopeOpen} size="lg" />
+              <CIcon icon={cibOpsgenie} /> ADMIN SITE
             </CNavLink>
           </CNavItem>
         </CHeaderNav>
@@ -89,8 +58,6 @@ const AppHeader = () => {
             <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (
                 <CIcon icon={cilMoon} size="lg" />
-              ) : colorMode === 'auto' ? (
-                <CIcon icon={cilContrast} size="lg" />
               ) : (
                 <CIcon icon={cilSun} size="lg" />
               )}
@@ -113,15 +80,6 @@ const AppHeader = () => {
                 onClick={() => setColorMode('dark')}
               >
                 <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
-              </CDropdownItem>
-              <CDropdownItem
-                active={colorMode === 'auto'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('auto')}
-              >
-                <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
               </CDropdownItem>
             </CDropdownMenu>
           </CDropdown>

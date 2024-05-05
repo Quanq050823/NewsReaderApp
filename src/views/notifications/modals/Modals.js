@@ -589,12 +589,8 @@ const Modals = () => {
               Add <code>alignment=&#34;center&#34;</code> to <code>&lt;CModal&gt;</code> to
               vertically center the modal.
             </p>
-            <DocsExample href="components/modal#vertically-centered">
-              {VerticallyCentered()}
-            </DocsExample>
-            <DocsExample href="components/modal#vertically-centered">
-              {VerticallyCentered2()}
-            </DocsExample>
+            {VerticallyCentered()}
+            {VerticallyCentered2()}
           </CCardBody>
         </CCard>
       </CCol>

@@ -1,7 +1,8 @@
 import React, { Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-
+import { getDatabase, ref, child, get } from 'firebase/database'
+import { database } from './firebase'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 

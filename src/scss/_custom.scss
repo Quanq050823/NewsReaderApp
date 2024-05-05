@@ -1,1 +1,69 @@
-// Here you can add other styles
+.edit-modal {
+    margin-right: 20px;
+}
+.custom-modal .modal-dialog {
+    width: 80%;
+}
+.custom-input-group {
+    margin-bottom: 20px; 
+}
+.custom-modal-header {
+    background-color: #9ae4ba;
+}
+.custom-modal-header-edit {
+    background-color: #94c4ca;
+}
+.custom-modal-header-delete {
+    background-color: #febebe;
+}
+.custom-input-group-text {
+    width: 180px; 
+}
+.custom-input-select {
+    width: 200px; 
+    margin-bottom: 20px; 
+}
+.custom-input-select-active {
+    width: 200px; 
+    margin-bottom: 20px; 
+    background-color: #9af5cc;
+}
+.custom-input-select-inactive {
+    width: 200px; 
+    margin-bottom: 20px;
+    background-color: #eaaaaa;
+}
+.custom-text-color {
+    color: #570000;
+}
+
+.custom-textcolor-green {
+    color: #81b884;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custombuttonadd {
+    --cui-btn-color: #080a0c;
+    --cui-btn-bg: #5ad179;
+    --cui-btn-border-color: #1b9e3e;
+    --cui-btn-hover-color: #080a0c;
+    --cui-btn-hover-bg: #64e787;
+    --cui-btn-hover-border-color: #32a851;
+    --cui-btn-focus-shadow-rgb: 24, 136, 55;
+    --cui-btn-active-color: #080a0c;
+    --cui-btn-active-bg: #49b165;
+    --cui-btn-active-border-color: #32a851;
+    --cui-btn-active-shadow: inset 0 3px 5px rgba(8, 10, 12, 0.125);
+    --cui-btn-disabled-color: #080a0c;
+    --cui-btn-disabled-bg: #1b9e3e;
+    --cui-btn-disabled-border-color: #1b9e3e;
+}
+
+.custom-modal-header-changepass {
+    background-color: #e0e0e0;
+}
