@@ -341,63 +341,17 @@ const UserAccount = () => (
                 <CTableHeaderCell scope="col">Password</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Type</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Date Created</CTableHeaderCell>
+                <CTableHeaderCell scope="col"></CTableHeaderCell>
               </CTableRow>
             </CTableHead>
-            <CTableBody>
-              <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell>sinezaibes</CTableDataCell>
-                <CTableDataCell>sineizabes@gmail.com</CTableDataCell>
-                <CTableDataCell>••••••••</CTableDataCell>
-                <CTableDataCell>@twitter</CTableDataCell>
-                <CTableDataCell>25/05/2024</CTableDataCell>
-                <CTableDataCell className="button-container">
-                  <div className="edit-modal">{EditModal()}</div>
-                  <div className="delete-modal">{DeleteModal()}</div>
-                </CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell>sinezaibes</CTableDataCell>
-                <CTableDataCell>sineizabes@gmail.com</CTableDataCell>
-                <CTableDataCell>••••••••</CTableDataCell>
-                <CTableDataCell>@twitter</CTableDataCell>
-                <CTableDataCell>25/05/2024</CTableDataCell>
-                <CTableDataCell className="button-container">
-                  <div className="edit-modal">{EditModal()}</div>
-                  <div className="delete-modal">{DeleteModal()}</div>
-                </CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell>sinezaibes</CTableDataCell>
-                <CTableDataCell>sineizabes@gmail.com</CTableDataCell>
-                <CTableDataCell>••••••••</CTableDataCell>
-                <CTableDataCell>@twitter</CTableDataCell>
-                <CTableDataCell>25/05/2024</CTableDataCell>
-                <CTableDataCell className="button-container">
-                  <div className="edit-modal">{EditModal()}</div>
-                  <div className="delete-modal">{DeleteModal()}</div>
-                </CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell>sinezaibes</CTableDataCell>
-                <CTableDataCell>sineizabes@gmail.com</CTableDataCell>
-                <CTableDataCell>••••••••</CTableDataCell>
-                <CTableDataCell>@twitter</CTableDataCell>
-                <CTableDataCell>25/05/2024</CTableDataCell>
-                <CTableDataCell className="button-container">
-                  <div className="edit-modal">{EditModal()}</div>
-                  <div className="delete-modal">{DeleteModal()}</div>
-                </CTableDataCell>
-              </CTableRow>
-            </CTableBody>
+            <CTableBody>{ShowUser()}</CTableBody>
           </CTable>
         </CCardBody>
       </CCard>
     </CCol>
-    {AddingModal()}
+    <br />
+    <br />
+    <br />
   </>
 )
 

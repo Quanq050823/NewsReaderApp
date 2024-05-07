@@ -21,13 +21,16 @@ import {
   CCardBody,
 } from '@coreui/react'
 
-const AddingSourceModal = () => {
+const AddingTopicModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [datecreated, setDatecreated] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [status, setStatus] = useState('')
-  const [url, setURL] = useState('')
+  const [dateCreated, setDateCreated] = useState('')
+  const [lastActive, setLastActive] = useState('')
+  const [type, setType] = useState('')
+  
   const [message, setMessage] = useState({ text: '', type: '' })
 
   const closemodel = () => {
@@ -37,13 +40,15 @@ const AddingSourceModal = () => {
 
   const saveData = async () => {
     const db = database
-    const newDocRef = push(ref(db, 'NewsSource/'))
+    const newDocRef = push(ref(db, 'User/'))
     set(newDocRef, {
       Name: name,
-      Description: description,
-      DateCreated: datecreated,
+      Email: email,
+      Password: password,
       ActiveStatus: status,
-      URL: url,
+      DateCreated: dateCreated,
+      LastActive: lastActive,
+      Type: type,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -79,24 +84,44 @@ const AddingSourceModal = () => {
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Email</CInputGroupText>
                 <CFormInput
-                  aria-label="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  aria-label="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Password</CInputGroupText>
                 <CFormInput
-                  aria-label="Date Created"
-                  value={datecreated}
-                  onChange={(e) => setDatecreated(e.target.value)}
+                  aria-label="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">URL</CInputGroupText>
-                <CFormInput aria-label="URL" value={url} onChange={(e) => setURL(e.target.value)} />
+                <CInputGroupText className="custom-input-group-text">DateCreated</CInputGroupText>
+                <CFormInput
+                  aria-label="DateCreated"
+                  value={dateCreated}
+                  onChange={(e) => setDateCreated(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Last Active</CInputGroupText>
+                <CFormInput
+                  aria-label="LastActive"
+                  value={lastActive}
+                  onChange={(e) => setLastActive(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Type</CInputGroupText>
+                <CFormInput
+                  aria-label="Type"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                />
               </CInputGroup>
               <CFormSelect
                 className="-input-select"
@@ -131,7 +156,7 @@ const AddingSourceModal = () => {
     </>
   )
 }
-const EditSourceModal = () => {
+const EditTopicModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
   const closemodel = () => {
     setVisibleLg(false)
@@ -159,16 +184,16 @@ const EditSourceModal = () => {
                 <CFormInput aria-label="News Source Name" />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
-                <CFormInput aria-label="Description" />
+                <CInputGroupText className="custom-input-group-text">Email</CInputGroupText>
+                <CFormInput aria-label="Email" />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
                 <CFormInput aria-label="Date Created" />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">URL</CInputGroupText>
-                <CFormInput aria-label="URL" />
+                <CInputGroupText className="custom-input-group-text">DateCreated</CInputGroupText>
+                <CFormInput aria-label="DateCreated" />
               </CInputGroup>
               <CFormSelect className="-input-select" aria-label="Default select example">
                 <option value="1" className="custom-input-select-active">
@@ -193,14 +218,14 @@ const EditSourceModal = () => {
 }
 
 // eslint-disable-next-line react/prop-types
-const DeleteSourceModal = ({ sourceId }) => {
+const DeleteTopicModal = ({ sourceId }) => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
   const [visible, setVisible] = useState(false)
 
   const DeleteData = async (sourceId) => {
     const db = database
-    const dbRef = ref(db, 'NewsSource/' + sourceId)
+    const dbRef = ref(db, 'User/' + sourceId)
     remove(dbRef)
       .then(() => {
         setMessage({ text: 'Data removed successfully', type: 'success' })
@@ -208,31 +233,36 @@ const DeleteSourceModal = ({ sourceId }) => {
       .catch(() => {
         setMessage({ text: 'Error removing document: ', type: 'error' })
       })
-  }  
+  }
 
+  const closemodel = () => {
+    setVisible(false)
+    setMessage({ text: '', type: '' })
+  }
   return (
     <>
-      {newsSources.map((source, index) => (
-        <>
-          <div key={index}></div>
-          <CTableRow>
-            <CTableHeaderCell scope="row"> {source.sourceId}</CTableHeaderCell>
-            <CTableDataCell>{source.Name}</CTableDataCell>
-            <CTableDataCell> {source.Description}</CTableDataCell>
-            <CTableDataCell>{source.DateCreated}</CTableDataCell>
-            <CTableDataCell className="button-container">
-              <div className="edit-modal">
-                <EditSourceModal />
-              </div>
-              <div className="delete-modal">
-                <DeleteSourceModal sourceId={source.sourceId} />
-              </div>
-            </CTableDataCell>
-          </CTableRow>
-        </>
-      ))}
-      <br />
-      <AddingSourceModal />
+      <CButton color="danger" onClick={() => setVisible(!visible)}>
+        Delete
+      </CButton>
+      <CModal alignment="center" visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader className="custom-modal-header-delete">
+          <CModalTitle>Delete Item</CModalTitle>
+        </CModalHeader>
+        <CModalBody>Are you sure to delete this item?</CModalBody>
+        {message.text && (
+          <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+            {message.text}
+          </div>
+        )}
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => closemodel()}>
+            Close
+          </CButton>
+          <CButton color="danger" onClick={() => DeleteData(sourceId)}>
+            Delete
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   )
 }
@@ -240,7 +270,7 @@ const DeleteSourceModal = ({ sourceId }) => {
 const ShowUser = () => {
   let [newsSources, setNewsSources] = useState([])
   const fetchData = async () => {
-    const dbRef = ref(database, 'NewsTopic')
+    const dbRef = ref(database, 'User')
     const snapshot = await get(dbRef)
     if (snapshot.exists()) {
       const myData = snapshot.val()
@@ -260,28 +290,29 @@ const ShowUser = () => {
 
   return (
     <>
-      {newsSources.map((source, index) => {
-        const user = {
-          avatar: { src: user_avatar, status: 'success' },
-          user: {
-            name: source.Name,
-            new: true,
-            registered: source.DateCreated,
-          },
-          Email: source.Email,
-          usage: {
-            value: 50,
-            period: 'Jun 11, 2024 - Jul 10, 2024',
-            color: 'success',
-          },
-          payment: { name: 'Mastercard', icon: cibCcMastercard },
-          activity: '10 sec ago',
-        }
-
-        return <div key={index}>{user}</div>
-      })}
+      {newsSources.map((source, index) => (
+        <>
+          <div key={index}></div>
+          <CTableRow>
+            <CTableHeaderCell scope="row">{source.sourceId}</CTableHeaderCell>
+            <CTableDataCell>{source.Name}</CTableDataCell>
+            <CTableDataCell>{source.Email}</CTableDataCell>
+            <CTableDataCell>•••••••••••</CTableDataCell>
+            <CTableDataCell>{source.Type}</CTableDataCell>
+            <CTableDataCell>{source.DateCreated}</CTableDataCell>
+            <CTableDataCell className="button-container">
+              <div className="edit-modal">
+                <EditTopicModal />
+              </div>
+              <div className="delete-modal">
+                <DeleteTopicModal sourceId={source.sourceId} />
+              </div>
+            </CTableDataCell>
+          </CTableRow>
+        </>
+      ))}
       <br />
-      <AddingSourceModal />
+      <AddingTopicModal />
     </>
   )
 }
