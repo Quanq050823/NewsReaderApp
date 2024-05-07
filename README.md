@@ -1,8 +1,6 @@
 
 ## UI
-
-| Default Theme |
-|![CCnews](https://github.com/Quanq050823/admin_newsreader/assets/115741397/58ecbfae-f12e-4c7b-997e-63a6d9d99f2d)|
+![CCnews](https://github.com/Quanq050823/admin_newsreader/assets/115741397/58ecbfae-f12e-4c7b-997e-63a6d9d99f2d)
 
 ## Quick Start
 
