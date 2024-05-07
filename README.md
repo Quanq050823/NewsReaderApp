@@ -1,9 +1,9 @@
 
-## CC News UI
+## UI
 
 | Default Theme | Dark Theme |
 | --- | --- |
-| ![CoreUI PRO React Admin Template](https://github.com/Quanq050823/admin_newsreader/assets/115741397/75757e6e-1175-4ab3-9122-7ad2bf5c3dfc) |  |
+| (https://github.com/Quanq050823/admin_newsreader/assets/115741397/75757e6e-1175-4ab3-9122-7ad2bf5c3dfc) |![CCnews-darkthemepng](https://github.com/Quanq050823/admin_newsreader/assets/115741397/27a8e959-2c10-4844-b886-9488e18ac13d)|
 
 ## Quick Start
 
