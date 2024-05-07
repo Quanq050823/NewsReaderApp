@@ -3,7 +3,7 @@
 
 | Default Theme | Dark Theme |
 | --- | --- |
-| [![CoreUI PRO React Admin Template](https://drive.google.com/file/d/1JfNJtx74VV122oQY_68jFBvC-Kv0FW4I/view?usp=sharing)](https://drive.google.com/file/d/1mhlhwYX1flzt32sv3xZEPGeyeJHD8m9-/view?usp=sharing) 
+| [![CoreUI PRO React Admin Template](https://drive.google.com/file/d/1bzjLiVW1xNFMNLhXWzfmCRA-KniAgSvh/view?usp=sharing)](https://drive.google.com/file/d/1bzjLiVW1xNFMNLhXWzfmCRA-KniAgSvh/view?usp=sharing) 
 ## Quick Start
 
 - [Download the latest release](https://github.com/Quanq050823/admin_newsreader.git)
