@@ -1,9 +1,8 @@
 
 ## UI
 
-| Default Theme | Dark Theme |
-| --- | --- |
-| (https://github.com/Quanq050823/admin_newsreader/assets/115741397/75757e6e-1175-4ab3-9122-7ad2bf5c3dfc) |![CCnews-darkthemepng](https://github.com/Quanq050823/admin_newsreader/assets/115741397/27a8e959-2c10-4844-b886-9488e18ac13d)|
+| Default Theme |
+|![CCnews](https://github.com/Quanq050823/admin_newsreader/assets/115741397/58ecbfae-f12e-4c7b-997e-63a6d9d99f2d)|
 
 ## Quick Start
 
