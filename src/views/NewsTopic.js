@@ -4,43 +4,52 @@ import {
   CCardHeader,
   CCardBody,
   CCol,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableCaption,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
   CButton,
-  CLink,
   CModal,
   CModalBody,
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CPopover,
-  CTooltip,
-  CDropdown,
-  CDropdownDivider,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
-  CFormCheck,
   CFormInput,
-  CFormLabel,
-  CFormSelect,
-  CFormTextarea,
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react'
-import { color } from 'chart.js/helpers'
-import { ShowNewsTopic } from '../API/NewsTopicAPI'
+import {
+  collection,
+  addDoc,
+} from 'firebase/firestore'
+import { db } from '../firebase'
+import { ShowNewsTopic } from '../Controller/NewsTopicAPI'
+
 
 // ...
 
-const AddingModal = () => {
+export const AddingTopicModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [datecreated, setDatecreated] = useState('')
+  const [message, setMessage] = useState({ text: '', type: '' })
+
+  const closemodel = () => {
+    setVisibleLg(false)
+    setMessage({ text: '', type: '' })
+  }
+
+  const saveData = async () => {
+    await addDoc(collection(db, 'NewsTopic'), {
+      Name: name,
+      Description: description,
+      DateCreated: datecreated,
+    })
+      .then(() => {
+        setMessage({ text: 'Data saved successfully', type: 'success' })
+      })
+      .catch(() => {
+        setMessage({ text: 'Error adding document: ', type: 'error' })
+      })
+  }
+
   return (
     <>
       <CButton className="custombuttonadd" color="success" onClick={() => setVisibleLg(!visibleLg)}>
@@ -48,7 +57,7 @@ const AddingModal = () => {
       </CButton>
       <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
         <CModalHeader className="custom-modal-header">
-          <CModalTitle>Adding News Source</CModalTitle>
+          <CModalTitle>Adding News Topic</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <span className="custom-text-color">
@@ -58,122 +67,65 @@ const AddingModal = () => {
             <CCardBody>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">
-                  News Source Name
+                  News Topic Name
                 </CInputGroupText>
-                <CFormInput aria-label="News Source Name" />
+                <CFormInput
+                  aria-label="News Topic Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
-                <CFormInput aria-label="Description" />
+                <CFormInput
+                  aria-label="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
-                <CFormInput aria-label="Date Created" />
+                <CFormInput
+                  aria-label="Date Created"
+                  value={datecreated}
+                  onChange={(e) => setDatecreated(e.target.value)}
+                />
               </CInputGroup>
             </CCardBody>
           </CCol>
         </CModalBody>
+        {message.text && (
+          <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+            {message.text}
+          </div>
+        )}
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisibleLg(false)}>
+          <CButton color="secondary" onClick={() => closemodel()}>
             Close
           </CButton>
-          <CButton color="primary">Save changes</CButton>
-        </CModalFooter>
-      </CModal>
-    </>
-  )
-}
-const EditModal = () => {
-  const [visibleLg, setVisibleLg] = useState(false)
-  return (
-    <>
-      <CButton color="primary" onClick={() => setVisibleLg(!visibleLg)}>
-        Edit
-      </CButton>
-      <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
-        <CModalHeader className="custom-modal-header-edit">
-          <CModalTitle>Edit News Source</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <span className="custom-text-color">
-            <h6 className=".custom-textcolor-red">Item information :</h6>
-          </span>
-          <CCol xs={12}>
-            <CCardBody>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">
-                  News Source Name
-                </CInputGroupText>
-                <CFormInput aria-label="News Source Name" />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
-                <CFormInput aria-label="Description" />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
-                <CFormInput aria-label="Date Created" />
-              </CInputGroup>
-            </CCardBody>
-          </CCol>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisibleLg(false)}>
-            Close
+          <CButton color="primary" onClick={() => saveData()}>
+            Save changes
           </CButton>
-          <CButton color="primary">Save changes</CButton>
         </CModalFooter>
       </CModal>
     </>
   )
 }
 
-const DeleteModal = () => {
-  const [visible, setVisible] = useState(false)
-  return (
-    <>
-      <CButton color="danger" onClick={() => setVisible(!visible)}>
-        Delete
-      </CButton>
-      <CModal alignment="center" visible={visible} onClose={() => setVisible(false)}>
-        <CModalHeader className="custom-modal-header-delete">
-          <CModalTitle>Delete Item</CModalTitle>
-        </CModalHeader>
-        <CModalBody>Are you sure to delete this item?</CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisible(false)}>
-            Close
-          </CButton>
-          <CButton color="danger">Delete</CButton>
-        </CModalFooter>
-      </CModal>
-    </>
-  )
+const NewsTopic = () => {
+    return (
+      <>
+        <CCol xs={12}>
+          <CCard className="mb-4">
+            <CCardHeader>
+              <strong>News Topic Management</strong>
+            </CCardHeader>
+            <ShowNewsTopic />
+          </CCard>
+          <AddingTopicModal />
+        </CCol>
+      </>
+    )
 }
-
-const NewsTopic = () => (
-  <>
-    <CCol xs={12}>
-      <CCard className="mb-4">
-        <CCardHeader>
-          <strong>News Topic Management</strong>
-        </CCardHeader>
-        <CCardBody>
-          <CTable striped hover>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Description</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Date Created</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>{ShowNewsTopic()}</CTableBody>
-          </CTable>
-        </CCardBody>
-      </CCard>
-    </CCol>
-  </>
-)
 
 export default NewsTopic

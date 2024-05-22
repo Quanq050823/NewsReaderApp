@@ -1,44 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CCard,
   CCardHeader,
   CCardBody,
   CCol,
   CRow,
-  CTable,
-  CTableBody,
-  CTableCaption,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
   CButton,
-  CLink,
   CModal,
   CModalBody,
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CPopover,
-  CTooltip,
-  CDropdown,
-  CDropdownDivider,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
-  CFormCheck,
   CFormInput,
-  CFormLabel,
-  CFormSelect,
-  CFormTextarea,
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react'
-import { color } from 'chart.js/helpers'
-// ...
-
-import { CAvatar, CProgress } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 import {
   cibCcAmex,
   cibCcApplePay,
@@ -55,10 +31,41 @@ import {
   cilPeople,
 } from '@coreui/icons'
 import user_avatar from 'src/assets/images/avatars/user_avatar.jpg'
-import { ShowUser } from '../API/UserAPI'
+import { collection, addDoc } from 'firebase/firestore'
+import { db } from '../firebase'
+import { ShowUser } from '../Controller/UserAPI'
+import { ShowUserTable } from '../Controller/UserAPI'
 
 const AddingModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [type, setType] = useState('')
+  const [datecreated, setDatecreated] = useState('')
+  const [message, setMessage] = useState({ text: '', type: '' })
+
+  const closemodel = () => {
+    setVisibleLg(false)
+    setMessage({ text: '', type: '' })
+  }
+
+  const saveData = async () => {
+    await addDoc(collection(db, 'User'), {
+      Username: name,
+      Email: email,
+      Password: password,
+      Type: type,
+      DateCreated: datecreated,
+    })
+      .then(() => {
+        setMessage({ text: 'Data saved successfully', type: 'success' })
+      })
+      .catch(() => {
+        setMessage({ text: 'Error adding document: ', type: 'error' })
+      })
+  }
+
   return (
     <>
       <CButton className="custombuttonadd" color="success" onClick={() => setVisibleLg(!visibleLg)}>
@@ -66,7 +73,7 @@ const AddingModal = () => {
       </CButton>
       <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
         <CModalHeader className="custom-modal-header">
-          <CModalTitle>Adding User Account</CModalTitle>
+          <CModalTitle>Adding User</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <span className="custom-text-color">
@@ -75,27 +82,60 @@ const AddingModal = () => {
           <CCol xs={12}>
             <CCardBody>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">
-                  User Account Name
-                </CInputGroupText>
-                <CFormInput aria-label="User Account Name" />
+                <CInputGroupText className="custom-input-group-text">User Name</CInputGroupText>
+                <CFormInput
+                  aria-label="User Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
-                <CFormInput aria-label="Description" />
+                <CInputGroupText className="custom-input-group-text">Email</CInputGroupText>
+                <CFormInput
+                  aria-label="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Password</CInputGroupText>
+                <CFormInput
+                  aria-label="Date Created"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Type</CInputGroupText>
+                <CFormInput
+                  aria-label="Date Created"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
-                <CFormInput aria-label="Date Created" />
+                <CFormInput
+                  aria-label="Date Created"
+                  value={datecreated}
+                  onChange={(e) => setDatecreated(e.target.value)}
+                />
               </CInputGroup>
             </CCardBody>
           </CCol>
         </CModalBody>
+        {message.text && (
+          <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+            {message.text}
+          </div>
+        )}
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisibleLg(false)}>
+          <CButton color="secondary" onClick={() => closemodel()}>
             Close
           </CButton>
-          <CButton color="primary">Save changes</CButton>
+          <CButton color="primary" onClick={() => saveData()}>
+            Save changes
+          </CButton>
         </CModalFooter>
       </CModal>
     </>
@@ -191,73 +231,6 @@ const tableExample = [
     activity: 'Last week',
   },
 ]
-const EditModal = () => {
-  const [visibleLg, setVisibleLg] = useState(false)
-  return (
-    <>
-      <CButton color="primary" onClick={() => setVisibleLg(!visibleLg)}>
-        Edit
-      </CButton>
-      <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
-        <CModalHeader className="custom-modal-header-edit">
-          <CModalTitle>Edit User Account</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <span className="custom-text-color">
-            <h6 className=".custom-textcolor-red">User information :</h6>
-          </span>
-          <CCol xs={12}>
-            <CCardBody>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">
-                  User Account Name
-                </CInputGroupText>
-                <CFormInput aria-label="User Account Name" />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
-                <CFormInput aria-label="Description" />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
-                <CFormInput required aria-label="Date Created" />
-              </CInputGroup>
-            </CCardBody>
-          </CCol>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisibleLg(false)}>
-            Close
-          </CButton>
-          <CButton color="primary">Save changes</CButton>
-        </CModalFooter>
-      </CModal>
-    </>
-  )
-}
-
-const DeleteModal = () => {
-  const [visible, setVisible] = useState(false)
-  return (
-    <>
-      <CButton color="danger" onClick={() => setVisible(!visible)}>
-        Delete
-      </CButton>
-      <CModal alignment="center" visible={visible} onClose={() => setVisible(false)}>
-        <CModalHeader className="custom-modal-header-delete">
-          <CModalTitle>Delete Item</CModalTitle>
-        </CModalHeader>
-        <CModalBody>Are you sure to delete this item?</CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisible(false)}>
-            Close
-          </CButton>
-          <CButton color="danger">Delete</CButton>
-        </CModalFooter>
-      </CModal>
-    </>
-  )
-}
 
 const UserAccount = () => (
   <>
@@ -267,61 +240,7 @@ const UserAccount = () => (
           <CCardHeader>
             <strong>Recently</strong>
           </CCardHeader>
-          <CCardBody>
-            <CTable align="middle" className="mb-0 border" hover responsive>
-              <CTableHead className="text-nowrap">
-                <CTableRow>
-                  <CTableHeaderCell className="bg-body-tertiary text-center">
-                    <CIcon icon={cilPeople} />
-                  </CTableHeaderCell>
-                  <CTableHeaderCell className="bg-body-tertiary">User</CTableHeaderCell>
-                  <CTableHeaderCell className="bg-body-tertiary text-center">
-                    Status
-                  </CTableHeaderCell>
-                  <CTableHeaderCell className="bg-body-tertiary">Email</CTableHeaderCell>
-                  <CTableHeaderCell className="bg-body-tertiary">Activity</CTableHeaderCell>
-                  <CTableHeaderCell className="bg-body-tertiary"></CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {tableExample.map((item, index) => (
-                  <CTableRow v-for="item in tableItems" key={index}>
-                    <CTableDataCell className="text-center">
-                      <CAvatar size="md" src={item.avatar.src} status={item.avatar.status} />
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <div>{item.user.name}</div>
-                      <div className="small text-body-secondary text-nowrap">
-                        <span>{item.user.new ? 'New' : 'Recurring'}</span> | Registered:{' '}
-                        {item.user.registered}
-                      </div>
-                    </CTableDataCell>
-                    <CTableDataCell className="text-center">
-                      <CButton
-                        color={'success'}
-                        shape="rounded-pill"
-                        key={index}
-                        title="This account is activating"
-                      >
-                        {'active'.charAt(0).toUpperCase() + 'active'.slice(1)}
-                      </CButton>
-                    </CTableDataCell>
-                    <CTableDataCell>twitter@insta.com</CTableDataCell>
-                    <CTableDataCell>
-                      <div className="small text-body-secondary text-nowrap">Last login</div>
-                      <div className="fw-semibold text-nowrap">{item.activity}</div>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CTableDataCell className="button-container">
-                        <div className="edit-modal">{EditModal()}</div>
-                        <div className="delete-modal">{DeleteModal()}</div>
-                      </CTableDataCell>
-                    </CTableDataCell>
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
-          </CCardBody>
+          <ShowUserTable />
         </CCard>
       </CCol>
     </CRow>
@@ -331,23 +250,9 @@ const UserAccount = () => (
         <CCardHeader>
           <strong>User Account Management</strong>
         </CCardHeader>
-        <CCardBody>
-          <CTable striped hover>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Username</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Password</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Type</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Date Created</CTableHeaderCell>
-                <CTableHeaderCell scope="col"></CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>{ShowUser()}</CTableBody>
-          </CTable>
-        </CCardBody>
+        <ShowUser />
       </CCard>
+      {/* <AddingModal /> */}
     </CCol>
     <br />
     <br />

@@ -4,40 +4,143 @@ import {
   CCardHeader,
   CCardBody,
   CCol,
-  CTable,
-  CTableBody,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
+  CButton,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+  CFormInput,
+  CFormSelect,
+  CInputGroup,
+  CInputGroupText,
 } from '@coreui/react'
-import { ShowNewsSources } from '../API/NewsSourcesAPI'
+import { db } from '../firebase'
+import { ShowNewsSources } from '../Controller/NewsSourceAPI'
+import { collection, addDoc } from 'firebase/firestore'
 // ...
-const NewsSource = () => (
-  <>
-    <CCol xs={12}>
-      <CCard className="mb-4">
-        <CCardHeader>
-          <strong>News Source Management</strong>
-        </CCardHeader>
-        <CCardBody>
-          <CTable striped hover>
-            <CTableHead>
-              <CTableRow>
-                {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
-                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Description</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Date Created</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Activate Status</CTableHeaderCell>
-                <CTableHeaderCell scope="col">URL</CTableHeaderCell>
-                <CTableHeaderCell scope="col"></CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>{ShowNewsSources()}</CTableBody>
-          </CTable>
-        </CCardBody>
-      </CCard>
-    </CCol>
-  </>
-)
+
+const AddingSourceModal = () => {
+  const [visibleLg, setVisibleLg] = useState(false)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [datecreated, setDatecreated] = useState('')
+  const [status, setStatus] = useState('')
+  const [url, setURL] = useState('')
+  const [message, setMessage] = useState({ text: '', type: '' })
+
+  const closemodel = () => {
+    setVisibleLg(false)
+    setMessage({ text: '', type: '' })
+  }
+
+  const saveData = async () => {
+    await addDoc(collection(db, 'NewsSource'), {
+      Name: name,
+      Description: description,
+      DateCreated: datecreated,
+      ActiveStatus: status,
+      URL: url,
+    })
+      .then(() => {
+        setMessage({ text: 'Data saved successfully', type: 'success' })
+      })
+      .catch(() => {
+        setMessage({ text: 'Error adding document: ', type: 'error' })
+      })
+  }
+
+  return (
+    <>
+      <CButton className="custombuttonadd" color="success" onClick={() => setVisibleLg(!visibleLg)}>
+        Add
+      </CButton>
+      <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
+        <CModalHeader className="custom-modal-header">
+          <CModalTitle>Adding News Source</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <span className="custom-text-color">
+            <h6 className=".custom-textcolor-red">Item information :</h6>
+          </span>
+          <CCol xs={12}>
+            <CCardBody>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">
+                  News Source Name
+                </CInputGroupText>
+                <CFormInput
+                  aria-label="News Source Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
+                <CFormInput
+                  aria-label="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
+                <CFormInput
+                  aria-label="Date Created"
+                  value={datecreated}
+                  onChange={(e) => setDatecreated(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">URL</CInputGroupText>
+                <CFormInput aria-label="URL" value={url} onChange={(e) => setURL(e.target.value)} />
+              </CInputGroup>
+              <CFormSelect
+                className="-input-select"
+                aria-label="Default select example"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="1" className="custom-input-select-active">
+                  Active
+                </option>
+                <option value="2" className="custom-input-select-inactive">
+                  Inactive
+                </option>
+              </CFormSelect>
+            </CCardBody>
+          </CCol>
+        </CModalBody>
+        {message.text && (
+          <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+            {message.text}
+          </div>
+        )}
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => closemodel()}>
+            Close
+          </CButton>
+          <CButton color="primary" onClick={() => saveData()}>
+            Save changes
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </>
+  )
+}
+const NewsSource = () => {
+  return (
+    <>
+      <CCol xs={12}>
+        <CCard className="mb-4">
+          <CCardHeader>
+            <strong>News Source Management</strong>
+          </CCardHeader>
+          <ShowNewsSources />
+        </CCard>
+      </CCol>
+    </>
+  )
+}
 
 export default NewsSource
