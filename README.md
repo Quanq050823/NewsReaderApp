@@ -1,6 +1,6 @@
 
 ## UI
-![CCnews](![image](https://github.com/Quanq050823/admin_newsreader/assets/115741397/b829ddc8-5b94-4a2d-aaf5-22cb3bc88f90)
+![CCnews](![image](https://github.com/Quanq050823/admin_newsreader/assets/115741397/b829ddc8-5b94-4a2d-aaf5-22cb3bc88f90))
 )
 
 ## Quick Start
