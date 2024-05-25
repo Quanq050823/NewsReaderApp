@@ -155,8 +155,7 @@ const EditTopicModal = ({ topicId }) => {
         } else {
           console.log('No such document!')
         }
-      }
-
+      } 
       fetchData()
     }
   }, [visibleLg])
@@ -200,6 +199,7 @@ const EditTopicModal = ({ topicId }) => {
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
                 <CFormInput
+                  disabled={true}
                   aria-label="Date Created"
                   value={datecreated}
                   onChange={(e) => setDatecreated(e.target.value)}

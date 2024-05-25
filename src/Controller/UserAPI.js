@@ -17,6 +17,7 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
+  CFormSelect,
 } from '@coreui/react'
 import {
   cilPeople,
@@ -44,18 +45,19 @@ const EditUserModal = ({ userId }) => {
   const [type, setType] = useState('')
   const [datecreated, setDatecreated] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
+  const [status, setStatus] = useState('')
   const EditData = async (userId) => {
     if (name === undefined || email === undefined || datecreated === undefined) {
       console.error('One of the values is undefined')
       return
     }
-    const dbRef = doc(db, 'User', userId)
+    const dbRef = doc(db, 'user', userId)
     await updateDoc(dbRef, {
-      Username: name,
-      Email: email,
-      Password: password,
-      Type: type,
-      DateCreated: datecreated,
+      username: name,
+      email: email,
+      password: password,
+      type: type,
+      dateCreated: datecreated,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -64,25 +66,33 @@ const EditUserModal = ({ userId }) => {
         setMessage({ text: 'Error adding document: ', type: 'error' })
       })
   }
+  
   useEffect(() => {
     if (visibleLg) {
       const fetchData = async () => {
-        const docRef = doc(db, 'User', userId)
+        const docRef = doc(db, 'user', userId)
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          setName(docSnap.data().Username)
-          setEmail(docSnap.data().Email)
-          setPassword(docSnap.data().Password)
-          setType(docSnap.data().Type)
-          setDatecreated(docSnap.data().DateCreated)
+          const data = docSnap.data()
+          let userStatus = ''
+          if (data.status) {
+            const userStatusDoc = await getDoc(data.status)
+            userStatus = userStatusDoc.data().name
+          }
+          setName(data.username)
+          setEmail(data.email)
+          setPassword(data.password)
+          setType(data.type)
+          setDatecreated(data.dateCreated?.toDate().toLocaleString())
+          setStatus(userStatus) // set the status
         } else {
           console.log('No such document!')
         }
       }
       fetchData()
     }
-  }, [visibleLg])
+  }, [visibleLg, userId])
   const closemodel = () => {
     setVisibleLg(false)
     setMessage({ text: '', type: '' })
@@ -118,25 +128,41 @@ const EditUserModal = ({ userId }) => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </CInputGroup>
-              <CInputGroup className="custom-input-group">
+              {/* <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Password</CInputGroupText>
                 <CFormInput
                   aria-label="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-              </CInputGroup>
+              </CInputGroup> */}
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Type</CInputGroupText>
                 <CFormInput
+                  disabled={true}
                   aria-label="Type"
-                  value={type}
+                  value="Administrator"
                   onChange={(e) => setType(e.target.value)}
                 />
               </CInputGroup>
+              {/* <CFormSelect
+                className="-input-select"
+                aria-label="Default select example"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <option value="User" className="custom-input-select-active">
+                  User
+                </option>
+                <option value="Admin" className="custom-input-select-inactive">
+                  Administrator
+                </option>
+              </CFormSelect> */}
+              {/* <br /> */}
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
                 <CFormInput
+                  disabled={true}
                   aria-label="Date Created"
                   value={datecreated}
                   onChange={(e) => setDatecreated(e.target.value)}
@@ -169,7 +195,7 @@ const DeleteUserModal = ({ userId }) => {
   const [visible, setVisible] = useState(false)
 
   const DeleteData = async (userId) => {
-    const dbRef = doc(db, 'User', userId)
+    const dbRef = doc(db, 'user', userId)
     await deleteDoc(dbRef)
       .then(() => {
         setMessage({ text: 'Data removed successfully', type: 'success' })
