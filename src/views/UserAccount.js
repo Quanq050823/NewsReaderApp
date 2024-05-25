@@ -33,8 +33,8 @@ import {
 import user_avatar from 'src/assets/images/avatars/user_avatar.jpg'
 import { collection, addDoc } from 'firebase/firestore'
 import { db } from '../firebase'
-import { ShowUser } from '../Controller/UserAPI'
-import { ShowUserTable } from '../Controller/UserAPI'
+import { ShowUser, ShowUserTable } from '../Controller/UserAPI'
+
 
 const AddingModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)

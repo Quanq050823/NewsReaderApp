@@ -30,7 +30,7 @@ export const AddingSourceModal = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [datecreated, setDatecreated] = useState('')
-  const [status, setStatus] = useState(1)
+  const [status, setStatus] = useState(true)
   const [url, setURL] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
 
@@ -40,11 +40,11 @@ export const AddingSourceModal = () => {
   }
 
   const saveData = async () => {
-    await addDoc(collection(db, 'NewsSource'), {
-      Name: name,
-      Description: description,
-      DateCreated: datecreated,
-      ActiveStatus: status,
+    await addDoc(collection(db, 'source'), {
+      name: name,
+      description: description,
+      dateCreated: datecreated,
+      active: status,
       URL: url,
         })
       .then(() => {
@@ -106,10 +106,10 @@ export const AddingSourceModal = () => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                <option value="1" className="custom-input-select-active">
+                <option value= "true" className="custom-input-select-active">
                   Active
                 </option>
-                <option value="2" className="custom-input-select-inactive">
+                <option value="false" className="custom-input-select-inactive">
                   Inactive
                 </option>
               </CFormSelect>
@@ -148,33 +148,33 @@ const EditSourceModal = ({sourceId}) => {
     return;
   }
 
-  const dbRef = doc(db, 'NewsSource', sourceId);
+  const dbRef = doc(db, 'source', sourceId);
   await updateDoc(dbRef, {
-    Name: name,
-    Description: description,
-    DateCreated: datecreated,
-      ActiveStatus: status,
-      URL: url,
-        })
-      .then(() => {
-        setMessage({ text: 'Data saved successfully', type: 'success' })
-      })
-      .catch(() => {
-        setMessage({ text: 'Error adding document: ', type: 'error' })
-      })
+    name: name,
+    description: description,
+    dateCreated: datecreated,
+    active: status,
+    url: url,
+  })
+    .then(() => {
+      setMessage({ text: 'Data saved successfully', type: 'success' })
+    })
+    .catch(() => {
+      setMessage({ text: 'Error adding document: ', type: 'error' })
+    })
   }
   useEffect(() => {
     if (visibleLg) {
       const fetchData = async () => {
-        const docRef = doc(db, 'NewsSource', sourceId)
+        const docRef = doc(db, 'source', sourceId)
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          setName(docSnap.data().Name)
-          setDescription(docSnap.data().Description)
-          setDatecreated(docSnap.data().DateCreated)
-          setURL(docSnap.data().URL)
-          setStatus(docSnap.data().Status)
+          setName(docSnap.data().name)
+          setDescription(docSnap.data().description)
+          setDatecreated(docSnap.data().dateCreated.toLocaleString())
+          setURL(docSnap.data().active)
+          setStatus(docSnap.data().url)
         } else {
           console.log('No such document!')
         }
@@ -238,10 +238,10 @@ const EditSourceModal = ({sourceId}) => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                <option value="1" className="custom-input-select-active">
+                <option value="true" className="custom-input-select-active">
                   Active
                 </option>
-                <option value="2" className="custom-input-select-inactive">
+                <option value="false" className="custom-input-select-inactive">
                   Inactive
                 </option>
               </CFormSelect>
@@ -272,7 +272,7 @@ const DeleteSourceModal = ({ sourceId }) => {
   const [visible, setVisible] = useState(false)
 
   const DeleteData = async (sourceId) => {
-    const dbRef = doc(db, 'NewsSource', sourceId)
+    const dbRef = doc(db, 'source', sourceId)
     await deleteDoc(dbRef)
       .then(() => {
         setMessage({ text: 'Data removed successfully', type: 'success' })
@@ -318,7 +318,7 @@ const ShowNewsSources = () => {
     let [newsSources, setNewsSources] = useState([])
     let [search, setSearch] = useState('')
     const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, 'NewsSource'))
+      const querySnapshot = await getDocs(collection(db, 'source'))
       const tempArray = querySnapshot.docs.map((doc) => {
         return {
           ...doc.data(),
@@ -328,14 +328,17 @@ const ShowNewsSources = () => {
       setNewsSources(tempArray)
     }
     fetchData()
-          const filteredSources = newsSources.filter(
-            (source) =>
-              source.Name.toLowerCase().includes(search.toLowerCase()) ||
-              source.Description.toLowerCase().includes(search.toLowerCase()) ||
-              source.DateCreated.toLowerCase().includes(search.toLowerCase()) ||
-              source.ActiveStatus.toLowerCase().includes(search.toLowerCase()) ||
-              source.URL.toLowerCase().includes(search.toLowerCase()),
-          )
+      const filteredSources = newsSources.filter(
+        (source) =>
+          source.name.toLowerCase().includes(search.toLowerCase()) ||
+          source.description.toLowerCase().includes(search.toLowerCase()) ||
+          new Date(source.dateCreated || '')
+            .toLocaleString()
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          source.active.toString().toLowerCase().includes(search.toLowerCase()) ||
+          source.url.toLowerCase().includes(search.toLowerCase()),
+      )
     return (
       <>
         <input
@@ -374,11 +377,13 @@ const ShowNewsSources = () => {
                     <div key={index}></div>
                     <CTableRow>
                       {/* <CTableHeaderCell scope="row"> {source.sourceId}</CTableHeaderCell> */}
-                      <CTableDataCell>{source.Name}</CTableDataCell>
-                      <CTableDataCell> {source.Description}</CTableDataCell>
-                      <CTableDataCell>{source.DateCreated}</CTableDataCell>
+                      <CTableDataCell>{source.name}</CTableDataCell>
+                      <CTableDataCell> {source.description}</CTableDataCell>
                       <CTableDataCell>
-                        {source.ActiveStatus === '1' ? (
+                        {source.dateCreated}
+                      </CTableDataCell>
+                      <CTableDataCell>
+                        {source.active === true ? (
                           <CButton
                             color={'success'}
                             variant="ghost"
@@ -398,7 +403,7 @@ const ShowNewsSources = () => {
                           </CButton>
                         )}
                       </CTableDataCell>
-                      <CTableDataCell>{source.URL}</CTableDataCell>
+                      <CTableDataCell>{source.url}</CTableDataCell>
                       <CTableDataCell className="button-container">
                         <div className="edit-modal">
                           <EditSourceModal sourceId={source.sourceId} />

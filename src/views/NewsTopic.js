@@ -37,10 +37,10 @@ export const AddingTopicModal = () => {
   }
 
   const saveData = async () => {
-    await addDoc(collection(db, 'NewsTopic'), {
-      Name: name,
-      Description: description,
-      DateCreated: datecreated,
+    await addDoc(collection(db, 'topic'), {
+      name: name,
+      description: description,
+      dateCreated: datecreated,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })

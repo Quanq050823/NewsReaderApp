@@ -42,10 +42,10 @@ export const AddingTopicModal = () => {
   }
 
   const saveData = async () => {
-    await addDoc(collection(db, 'NewsTopic'), {
-      Name: name,
-      Description: description,
-      DateCreated: datecreated,
+    await addDoc(collection(db, 'topic'), {
+      name: name,
+      description: description,
+      dateCreated: datecreated.toLocaleString(),
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -129,11 +129,11 @@ const EditTopicModal = ({ topicId }) => {
       return
     }
 
-    const dbRef = doc(db, 'NewsTopic', topicId)
+    const dbRef = doc(db, 'topic', topicId)
     await updateDoc(dbRef, {
-      Name: name,
-      Description: description,
-      DateCreated: datecreated,
+      name: name,
+      description: description,
+      dateCreated: datecreated,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -145,13 +145,13 @@ const EditTopicModal = ({ topicId }) => {
   useEffect(() => {
     if (visibleLg) {
       const fetchData = async () => {
-        const docRef = doc(db, 'NewsTopic', topicId)
+        const docRef = doc(db, 'topic', topicId)
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          setName(docSnap.data().Name)
-          setDescription(docSnap.data().Description)
-          setDatecreated(docSnap.data().DateCreated)
+          setName(docSnap.data().name)
+          setDescription(docSnap.data().description)
+          setDatecreated(docSnap.data().dateCreated?.toLocaleString())
         } else {
           console.log('No such document!')
         }
@@ -232,7 +232,7 @@ const DeleteTopicModal = ({ topicId }) => {
   const [visible, setVisible] = useState(false)
 
   const DeleteData = async (topicId) => {
-    const dbRef = doc(db, 'NewsTopic', topicId)
+    const dbRef = doc(db, 'topic', topicId)
     await deleteDoc(dbRef)
       .then(() => {
         setMessage({ text: 'Data removed successfully', type: 'success' })
@@ -278,7 +278,7 @@ const ShowNewsTopic = () => {
   let [newsTopic, setNewsTopic] = useState([])
   let [search, setSearch] = useState('')
   const fetchData = async () => {
-    const querySnapshot = await getDocs(collection(db, 'NewsTopic'))
+    const querySnapshot = await getDocs(collection(db, 'topic'))
     const tempArray = querySnapshot.docs.map((doc) => {
       return {
         ...doc.data(),
@@ -290,10 +290,12 @@ const ShowNewsTopic = () => {
   fetchData()
     const filteredTopics = newsTopic.filter(
       (topic) =>
-        topic.Name.toLowerCase().includes(search.toLowerCase()) ||
-        topic.Description.toLowerCase().includes(search.toLowerCase()) ||
-        topic.DateCreated.toLowerCase().includes(search.toLowerCase()) ||
-        topic.DateCreated.toLowerCase().includes(search.toLowerCase()),
+        (topic.name || '').toLowerCase().includes(search.toLowerCase()) ||
+        (topic.description || '').toLowerCase().includes(search.toLowerCase()) ||
+        (new Date(topic.dateCreated || '').toLocaleString() || '')
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        (topic.DateCreated || '').toLowerCase().includes(search.toLowerCase()),
     )
   return (
     <>
@@ -317,8 +319,7 @@ const ShowNewsTopic = () => {
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
                 Date Created
               </CTableHeaderCell>
-              <CTableHeaderCell className="bg-body-tertiary" scope="col">
-              </CTableHeaderCell>
+              <CTableHeaderCell className="bg-body-tertiary" scope="col"></CTableHeaderCell>
             </CTableRow>
           </CTableHead>
           <CTableBody>
@@ -328,9 +329,9 @@ const ShowNewsTopic = () => {
                   <div key={index}></div>
                   <CTableRow>
                     {/* <CTableHeaderCell scope="row"> {topic.topicId}</CTableHeaderCell> */}
-                    <CTableDataCell>{topic.Name}</CTableDataCell>
-                    <CTableDataCell> {topic.Description}</CTableDataCell>
-                    <CTableDataCell>{topic.DateCreated}</CTableDataCell>
+                    <CTableDataCell>{topic.name}</CTableDataCell>
+                    <CTableDataCell> {topic.description}</CTableDataCell>
+                    <CTableDataCell>{topic.dateCreated.toLocaleString()}</CTableDataCell>
                     <CTableDataCell className="button-container">
                       <div className="edit-modal">
                         <EditTopicModal topicId={topic.topicId} />

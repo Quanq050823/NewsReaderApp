@@ -35,7 +35,7 @@ const AddingSourceModal = () => {
   }
 
   const saveData = async () => {
-    await addDoc(collection(db, 'NewsSource'), {
+    await addDoc(collection(db, 'source'), {
       Name: name,
       Description: description,
       DateCreated: datecreated,

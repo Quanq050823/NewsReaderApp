@@ -212,31 +212,42 @@ const DeleteUserModal = ({ userId }) => {
 }
 
 const ShowUserTable = () => {
-    let [User, setUser] = useState([])
-    let [search, setSearch] = useState('')
-
-    useEffect(() => {
-      const fetchData = async () => {
-        const querySnapshot = await getDocs(collection(db, 'User'))
-        const tempArray = querySnapshot.docs.map((doc) => {
-          return {
-            ...doc.data(),
-            userId: doc.id,
+  let [User, setUser] = useState([])
+  let [search, setSearch] = useState('')
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, 'user'))
+      const tempArray = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const data = doc.data()
+          let userStatus = ''
+          if (data.status) {
+            const userStatusDoc = await getDoc(data.status)
+            userStatus = userStatusDoc.data().name
           }
-        })
-        setUser(tempArray)
-      }
-      fetchData()
-    }, [])
-
-    const filteredUsers = User.filter(user => 
-      user.Username.toLowerCase().includes(search.toLowerCase()) ||
-      user.Email.toLowerCase().includes(search.toLowerCase()) ||
-      user.Password.toLowerCase().includes(search.toLowerCase()) ||
-      user.Type.toLowerCase().includes(search.toLowerCase()) ||
-      user.DateCreated.toLowerCase().includes(search.toLowerCase())
-    )
-
+          return {
+            ...data,
+            userId: doc.id,
+            userStatus,
+          }
+        }),
+      )
+      setUser(tempArray)
+    }
+    fetchData()
+  }, [])
+  const filteredUsers = User.filter(
+    (user) =>
+      String(user.username).toLowerCase().includes(search.toLowerCase()) ||
+      String(user.email).toLowerCase().includes(search.toLowerCase()) ||
+      String(user.password).toLowerCase().includes(search.toLowerCase()) ||
+      String(user.userType).toLowerCase().includes(search.toLowerCase()) ||
+      String(user.lastActive).toLowerCase().includes(search.toLowerCase()) ||
+      String(user.userStatus).toLowerCase().includes(search.toLowerCase()) ||
+      (user.dateCreated?.toDate().toLocaleString() || '')
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+  )
     return (
       <>
         <input
@@ -256,7 +267,7 @@ const ShowUserTable = () => {
                 <CTableHeaderCell className="bg-body-tertiary text-center">Status</CTableHeaderCell>
                 <CTableHeaderCell className="bg-body-tertiary">Email</CTableHeaderCell>
                 <CTableHeaderCell className="bg-body-tertiary">Activity</CTableHeaderCell>
-                <CTableHeaderCell className="bg-body-tertiary"></CTableHeaderCell>
+                {/* <CTableHeaderCell className="bg-body-tertiary"></CTableHeaderCell> */}
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -267,13 +278,14 @@ const ShowUserTable = () => {
                       <CAvatar
                         size="md"
                         src={user_avatar}
-                        status={user.Status ? 'success' : 'danger'}
+                        status={user.userStatus === 'Active' ? 'success' : 'danger'}
                       />
                     </CTableDataCell>
                     <CTableDataCell>
-                      <div>{user.Username}</div>
+                      <div>{user.username}</div>
                       <div className="small text-body-secondary text-nowrap">
-                        <span>{'New'}</span> | Registered: {user.DateCreated}
+                        <span>{'New'}</span> | Registered:{' '}
+                        {user.dateCreated?.toDate().toLocaleString() || ''}
                       </div>
                     </CTableDataCell>
                     <CTableDataCell className="text-center">
@@ -286,12 +298,14 @@ const ShowUserTable = () => {
                         {'active'.charAt(0).toUpperCase() + 'active'.slice(1)}
                       </CButton>
                     </CTableDataCell>
-                    <CTableDataCell>{user.Email}</CTableDataCell>
+                    <CTableDataCell>{user.email}</CTableDataCell>
                     <CTableDataCell>
-                      <div className="small text-body-secondary text-nowrap">Last login</div>
-                      <div className="fw-semibold text-nowrap">10 sec ago</div>
+                      <div className="small text-body-secondary text-nowrap">Last Active</div>
+                      <div className="fw-semibold text-nowrap">
+                        {user.lastActive?.toDate().toLocaleString() || ''}
+                      </div>
                     </CTableDataCell>
-                    <CTableDataCell>
+                    {/* <CTableDataCell>
                       <CTableDataCell className="button-container">
                         <div className="edit-modal">
                           <EditUserModal userId={user.userId} />
@@ -300,7 +314,7 @@ const ShowUserTable = () => {
                           <DeleteUserModal userId={user.userId} />
                         </div>
                       </CTableDataCell>
-                    </CTableDataCell>
+                    </CTableDataCell> */}
                   </CTableRow>
                 ))}
               </>
@@ -314,25 +328,39 @@ const ShowUserTable = () => {
 const ShowUser = () => {
   let [User, setUser] = useState([])
   let [search, setSearch] = useState('')
-  const fetchData = async () => {
-    const querySnapshot = await getDocs(collection(db, 'User'))
-    const tempArray = querySnapshot.docs.map((doc) => {
-      return {
-        ...doc.data(),
-        userId: doc.id,
-      }
-    })
-    setUser(tempArray)
-  }
-  fetchData()
-      const filteredUsers = User.filter(
-        (user) =>
-          user.Username.toLowerCase().includes(search.toLowerCase()) ||
-          user.Email.toLowerCase().includes(search.toLowerCase()) ||
-          user.Password.toLowerCase().includes(search.toLowerCase()) ||
-          user.Type.toLowerCase().includes(search.toLowerCase()) ||
-          user.DateCreated.toLowerCase().includes(search.toLowerCase()),
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, 'user'))
+      const tempArray = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const data = doc.data()
+          let userType = ''
+          if (data.type) {
+            const userTypeDoc = await getDoc(data.type)
+            userType = userTypeDoc.data().name
+          }
+          return {
+            ...data,
+            userId: doc.id,
+            userType,
+          }
+        }),
       )
+      setUser(tempArray)
+    }
+    fetchData()
+    
+  }, [])
+    const filteredUsers = User.filter(
+      (user) =>
+        String(user.username).toLowerCase().includes(search.toLowerCase()) ||
+        String(user.email).toLowerCase().includes(search.toLowerCase()) ||
+        String(user.password).toLowerCase().includes(search.toLowerCase()) ||
+        String(user.userType).toLowerCase().includes(search.toLowerCase()) ||
+        (user.dateCreated?.toDate().toLocaleString() || '')
+          .toLowerCase()
+          .includes(search.toLowerCase()),
+    )
   return (
     <>
       <input
@@ -343,7 +371,7 @@ const ShowUser = () => {
       />
       <CCardBody>
         <CTable striped align="middle" className="mb-0 border" hover responsive>
-          <CTableHead className="bg-body-tertiary text-center">
+          <CTableHead>
             <CTableRow>
               {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
@@ -371,11 +399,13 @@ const ShowUser = () => {
                   <div key={index}></div>
                   <CTableRow>
                     {/* <CTableHeaderCell scope="row"> {user.userId}</CTableHeaderCell> */}
-                    <CTableDataCell>{user.Username}</CTableDataCell>
-                    <CTableDataCell> {user.Email}</CTableDataCell>
-                    <CTableDataCell>{user.Password}</CTableDataCell>
-                    <CTableDataCell>{user.Type}</CTableDataCell>
-                    <CTableDataCell>{user.DateCreated}</CTableDataCell>
+                    <CTableDataCell>{String(user.username)}</CTableDataCell>
+                    <CTableDataCell>{String(user.email)}</CTableDataCell>
+                    <CTableDataCell>•••••••••••</CTableDataCell>
+                    <CTableDataCell>{user.userType?.toString()}</CTableDataCell>
+                    <CTableDataCell>
+                      {user.dateCreated?.toDate().toLocaleString() || ''}
+                    </CTableDataCell>
                     <CTableDataCell className="button-container">
                       <div className="edit-modal">
                         <EditUserModal userId={user.userId} />
