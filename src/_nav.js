@@ -32,12 +32,12 @@ const _nav = [
     to: '/newsSource',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   },
-  {
-    component: CNavItem,
-    name: 'News Topics',
-    to: '/newsTopic',
-    icon: <CIcon icon={cilBookmark} customClassName="nav-icon" />,
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'News Topics',
+  //   to: '/newsTopic',
+  //   icon: <CIcon icon={cilBookmark} customClassName="nav-icon" />,
+  // },
   {
     component: CNavItem,
     name: 'User Account',

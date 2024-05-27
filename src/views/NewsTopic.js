@@ -28,7 +28,6 @@ export const AddingTopicModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [datecreated, setDatecreated] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
 
   const closemodel = () => {
@@ -40,7 +39,7 @@ export const AddingTopicModal = () => {
     await addDoc(collection(db, 'topic'), {
       name: name,
       description: description,
-      dateCreated: datecreated,
+      dateCreated: new Date(),
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -83,14 +82,14 @@ export const AddingTopicModal = () => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </CInputGroup>
-              <CInputGroup className="custom-input-group">
+              {/* <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
                 <CFormInput
                   aria-label="Date Created"
                   value={datecreated}
                   onChange={(e) => setDatecreated(e.target.value)}
                 />
-              </CInputGroup>
+              </CInputGroup> */}
             </CCardBody>
           </CCol>
         </CModalBody>

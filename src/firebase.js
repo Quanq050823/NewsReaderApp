@@ -2,13 +2,12 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCMZSToUJ6YJSQFFGa_1W3ZvZwONmM2vYM',
-  authDomain: 'news-reader-8e749.firebaseapp.com',
-  databaseURL: 'https://news-reader-8e749-default-rtdb.firebaseio.com',
-  projectId: 'news-reader-8e749',
-  storageBucket: 'news-reader-8e749.appspot.com',
-  messagingSenderId: '195990759050',
-  appId: '1:195990759050:web:47fe7373c83380c347ef73',
+  apiKey: 'AIzaSyCP9zNOoDI1RhQv3HnTR-bU1TwtWtB3RpI',
+  authDomain: 'news-admin-60412.firebaseapp.com',
+  projectId: 'news-admin-60412',
+  storageBucket: 'news-admin-60412.appspot.com',
+  messagingSenderId: '368054578353',
+  appId: '1:368054578353:web:633cecf31588f1057c8690',
 }
 
 const app = initializeApp(firebaseConfig)

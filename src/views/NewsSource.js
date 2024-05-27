@@ -2,22 +2,9 @@ import React, { useState } from 'react'
 import {
   CCard,
   CCardHeader,
-  CCardBody,
   CCol,
-  CButton,
-  CModal,
-  CModalBody,
-  CModalFooter,
-  CModalHeader,
-  CModalTitle,
-  CFormInput,
-  CFormSelect,
-  CInputGroup,
-  CInputGroupText,
 } from '@coreui/react'
-import { db } from '../firebase'
 import { ShowNewsSources } from '../Controller/NewsSourceAPI'
-import { collection, addDoc } from 'firebase/firestore'
 // ...
 
 const NewsSource = () => {

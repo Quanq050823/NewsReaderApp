@@ -20,33 +20,42 @@ import {
   CFormSelect,
   CInputGroup,
   CInputGroupText,
+  CButtonGroup,
 } from '@coreui/react'
 import { collection, doc, setDoc, addDoc, getDoc, getDocs, updateDoc, deleteField, deleteDoc } from 'firebase/firestore'
 import { db } from '../firebase'
+import { cilArrowRight } from '@coreui/icons'
+import CIcon from '@coreui/icons-react'
 
-
-export const AddingSourceModal = () => {
+const AddingSourceModal = ({ sourceId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
+  const [logo, setLogo] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [datecreated, setDatecreated] = useState('')
   const [status, setStatus] = useState(true)
+  const [format, setFormat] = useState('')
+  const [topic, setTopic] = useState([])
+  const [inputTopic, setInputTopic] = useState('')
   const [url, setURL] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
-
-  const closemodel = () => {
-    setVisibleLg(false)
-    setMessage({ text: '', type: '' })
-  }
-
-  const saveData = async () => {
+  const [deletetopicmodal, showdeletetopicmodal] = useState(false)
+  const [deleteIndex, setDeleteIndex] = useState(null)
+  const EditData = async (sourceId) => {
+    if (name === undefined || description === undefined || datecreated === undefined) {
+      console.error('One of the values is undefined')
+      return
+    }
     await addDoc(collection(db, 'source'), {
+      logo: logo,
       name: name,
       description: description,
-      dateCreated: datecreated,
+      dateCreated: new Date(),
       active: status,
       url: url,
-        })
+      topic: topic,
+      format: format,
+    })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
       })
@@ -54,7 +63,46 @@ export const AddingSourceModal = () => {
         setMessage({ text: 'Error adding document: ', type: 'error' })
       })
   }
+  const handleAddTopic = () => {
+    setTopic([...topic, inputTopic])
+    setInputTopic('')
+  }
+  useEffect(() => {
+    if (visibleLg) {
+      const fetchData = async () => {
+        const docRef = doc(db, 'source', sourceId)
+        const docSnap = await getDoc(docRef)
 
+        if (docSnap.exists()) {
+          setLogo(docSnap.data().logo)
+          setName(docSnap.data().name)
+          setDescription(docSnap.data().description)
+          setDatecreated(docSnap.data().dateCreated?.toDate().toLocaleString() || '')
+          setURL(docSnap.data().url)
+          setStatus(docSnap.data().active)
+          setFormat(docSnap.data().format)
+          setTopic(docSnap.data().topic || [])
+        } else {
+          console.log('No such document!')
+        }
+      }
+      fetchData()
+      console.log('fetch data')
+    }
+  }, [visibleLg])
+  const closemodel = () => {
+    setVisibleLg(false)
+    setMessage({ text: '', type: '' })
+  }
+  const handleClose = () => showdeletetopicmodal(false)
+  const handleShow = (index) => {
+    setDeleteIndex(index)
+    showdeletetopicmodal(true)
+  }
+  const handleDelete = () => {
+    setTopic(topic.filter((_, index) => index !== deleteIndex))
+    handleClose()
+  }
   return (
     <>
       <CButton className="custombuttonadd" color="success" onClick={() => setVisibleLg(!visibleLg)}>
@@ -70,6 +118,14 @@ export const AddingSourceModal = () => {
           </span>
           <CCol xs={12}>
             <CCardBody>
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Logo URL</CInputGroupText>
+                <CFormInput
+                  aria-label="Logo URL"
+                  value={logo}
+                  onChange={(e) => setLogo(e.target.value)}
+                />
+              </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">
                   News Source Name
@@ -88,11 +144,69 @@ export const AddingSourceModal = () => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </CInputGroup>
+              <CInputGroup className="custom-input-group" style={{ width: 350 }}>
+                <CInputGroupText className="custom-input-group-text">Topic</CInputGroupText>
+                <CFormInput
+                  aria-label="Input Topic"
+                  placeholder="Add More..."
+                  value={inputTopic}
+                  onChange={(e) => setInputTopic(e.target.value)}
+                />
+                <CButton
+                  color="success"
+                  className="button-add-topic"
+                  style={{ width: 40 }}
+                  onClick={handleAddTopic}
+                >
+                  <CIcon icon={cilArrowRight} className="me-2" />
+                </CButton>
+              </CInputGroup>
+              {topic.map((item, index) => (
+                <CButton
+                  color="success"
+                  shape="rounded-pill"
+                  key={index}
+                  className="button-topic"
+                  onClick={() => handleShow(index)}
+                >
+                  {item}
+                </CButton>
+              ))}
+              <CModal alignment="center" visible={deletetopicmodal} onClose={handleClose}>
+                <CModalHeader className="custom-modal-header-delete">
+                  <CModalTitle>Confirm Deletion</CModalTitle>
+                </CModalHeader>
+                <CModalBody>Are you sure you want to delete this topic?</CModalBody>
+                {message.text && (
+                  <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+                    {message.text}
+                  </div>
+                )}
+                <CModalFooter>
+                  <CButton color="secondary" onClick={handleClose}>
+                    Close
+                  </CButton>
+                  <CButton color="danger" onClick={handleDelete}>
+                    Delete
+                  </CButton>
+                </CModalFooter>
+              </CModal>
+              <br />
+              <br />
+              <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Format</CInputGroupText>
+                <CFormInput
+                  aria-label="Format"
+                  value={format}
+                  onChange={(e) => setFormat(e.target.value)}
+                />
+              </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
                 <CFormInput
+                  disabled={true}
                   aria-label="Date Created"
-                  value={datecreated}
+                  value={new Date().toLocaleString('en-US')}
                   onChange={(e) => setDatecreated(e.target.value)}
                 />
               </CInputGroup>
@@ -106,10 +220,10 @@ export const AddingSourceModal = () => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                <option value="1" className="custom-input-select-active">
+                <option value={true} className="custom-input-select-active">
                   Active
                 </option>
-                <option value="2" className="custom-input-select-inactive">
+                <option value={false} className="custom-input-select-inactive">
                   Inactive
                 </option>
               </CFormSelect>
@@ -125,7 +239,7 @@ export const AddingSourceModal = () => {
           <CButton color="secondary" onClick={() => closemodel()}>
             Close
           </CButton>
-          <CButton color="primary" onClick={() => saveData()}>
+          <CButton color="primary" onClick={() => EditData(sourceId)}>
             Save changes
           </CButton>
         </CModalFooter>
@@ -136,13 +250,18 @@ export const AddingSourceModal = () => {
 
 const EditSourceModal = ({sourceId}) => {
   const [visibleLg, setVisibleLg] = useState(false)
+  const [logo, setLogo] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [datecreated, setDatecreated] = useState('')
+  const [status, setStatus] = useState(true)
   const [format, setFormat] = useState('')
-  const [status, setStatus] = useState('1')
+  const [topic, setTopic] = useState([])
+  const [inputTopic, setInputTopic] = useState('')
   const [url, setURL] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
+  const [deletetopicmodal, showdeletetopicmodal] = useState(false)
+  const [deleteIndex, setDeleteIndex] = useState(null)
   const EditData = async (sourceId) => {
   if (name === undefined || description === undefined || datecreated === undefined) {
     console.error('One of the values is undefined');
@@ -151,19 +270,24 @@ const EditSourceModal = ({sourceId}) => {
 
   const dbRef = doc(db, 'source', sourceId);
   await updateDoc(dbRef, {
+    logo: logo,
     name: name,
     description: description,
-    dateCreated: datecreated,
+    active: status,
+    url: url,
+    topic: topic,
     format: format,
-      active: status,
-      url: url,
-        })
-      .then(() => {
-        setMessage({ text: 'Data saved successfully', type: 'success' })
-      })
-      .catch(() => {
-        setMessage({ text: 'Error adding document: ', type: 'error' })
-      })
+  })
+    .then(() => {
+      setMessage({ text: 'Data saved successfully', type: 'success' })
+    })
+    .catch(() => {
+      setMessage({ text: 'Error adding document: ', type: 'error' })
+    })
+  }
+  const handleAddTopic = () => {
+    setTopic([...topic, inputTopic])
+    setInputTopic('')
   }
   useEffect(() => {
     if (visibleLg) {
@@ -172,23 +296,34 @@ const EditSourceModal = ({sourceId}) => {
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
+          setLogo(docSnap.data().logo)
           setName(docSnap.data().name)
           setDescription(docSnap.data().description)
-          setDatecreated(docSnap.data().dateCreated)
-          setFormat(docSnap.data().format)
+          setDatecreated(docSnap.data().dateCreated?.toDate().toLocaleString() || '')
           setURL(docSnap.data().url)
           setStatus(docSnap.data().active)
+          setFormat(docSnap.data().format)
+          setTopic(docSnap.data().topic || [])
         } else {
           console.log('No such document!')
         }
       }
-
       fetchData()
+      console.log('fetch data')
     }
   }, [visibleLg])
   const closemodel = () => {
     setVisibleLg(false)
     setMessage({ text: '', type: '' })
+  }
+  const handleClose = () => showdeletetopicmodal(false)
+  const handleShow = (index) => {
+    setDeleteIndex(index)
+    showdeletetopicmodal(true)
+  }
+  const handleDelete = () => {
+    setTopic(topic.filter((_, index) => index !== deleteIndex))
+    handleClose()
   }
   return (
     <>
@@ -206,6 +341,14 @@ const EditSourceModal = ({sourceId}) => {
           <CCol xs={12}>
             <CCardBody>
               <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Logo URL</CInputGroupText>
+                <CFormInput
+                  aria-label="Logo URL"
+                  value={logo}
+                  onChange={(e) => setLogo(e.target.value)}
+                />
+              </CInputGroup>
+              <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">
                   News Source Name
                 </CInputGroupText>
@@ -223,6 +366,55 @@ const EditSourceModal = ({sourceId}) => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </CInputGroup>
+              <CInputGroup className="custom-input-group" style={{ width: 350 }}>
+                <CInputGroupText className="custom-input-group-text">Topic</CInputGroupText>
+                <CFormInput
+                  aria-label="Input Topic"
+                  placeholder="Add More..."
+                  value={inputTopic}
+                  onChange={(e) => setInputTopic(e.target.value)}
+                />
+                <CButton
+                  color="success"
+                  className="button-add-topic"
+                  style={{ width: 40 }}
+                  onClick={handleAddTopic}
+                >
+                  <CIcon icon={cilArrowRight} className="me-2" />
+                </CButton>
+              </CInputGroup>
+              {topic.map((item, index) => (
+                <CButton
+                  color="success"
+                  shape="rounded-pill"
+                  key={index}
+                  className="button-topic"
+                  onClick={() => handleShow(index)}
+                >
+                  {item}
+                </CButton>
+              ))}
+              <CModal alignment="center" visible={deletetopicmodal} onClose={handleClose}>
+                <CModalHeader className="custom-modal-header-delete">
+                  <CModalTitle>Confirm Deletion</CModalTitle>
+                </CModalHeader>
+                <CModalBody>Are you sure you want to delete this topic?</CModalBody>
+                {message.text && (
+                  <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+                    {message.text}
+                  </div>
+                )}
+                <CModalFooter>
+                  <CButton color="secondary" onClick={handleClose}>
+                    Close
+                  </CButton>
+                  <CButton color="danger" onClick={handleDelete}>
+                    Delete
+                  </CButton>
+                </CModalFooter>
+              </CModal>
+              <br />
+              <br />
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Format</CInputGroupText>
                 <CFormInput
@@ -250,10 +442,10 @@ const EditSourceModal = ({sourceId}) => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                <option value="1" className="custom-input-select-active">
+                <option value={true} className="custom-input-select-active">
                   Active
                 </option>
-                <option value="2" className="custom-input-select-inactive">
+                <option value={false} className="custom-input-select-inactive">
                   Inactive
                 </option>
               </CFormSelect>
@@ -327,8 +519,9 @@ const DeleteSourceModal = ({ sourceId }) => {
 }
 
 const ShowNewsSources = () => {
-  let [newsSource, setnewsSource] = useState([])
+  let [newsSources, setNewsSources] = useState([])
   let [search, setSearch] = useState('')
+
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, 'source'))
     const tempArray = querySnapshot.docs.map((doc) => {
@@ -337,23 +530,26 @@ const ShowNewsSources = () => {
         sourceId: doc.id,
       }
     })
-    setnewsSource(tempArray)
+    setNewsSources(tempArray)
   }
-  fetchData()
-  const filteredSources = newsSource.filter(
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  console.log('fetch data')
+
+  const filteredSources = newsSources.filter(
     (source) =>
       (source.name || '').toLowerCase().includes(search.toLowerCase()) ||
       (source.description || '').toLowerCase().includes(search.toLowerCase()) ||
       (new Date(source.dateCreated || '').toLocaleString() || '')
         .toLowerCase()
         .includes(search.toLowerCase()) ||
-      (source.dateCreated || '').toLowerCase().includes(search.toLowerCase()) ||
-      (source.format || '').toLowerCase().includes(search.toLowerCase()) ||
-      (source.active !== undefined ? (source.active ? 'active' : 'inactive') : '')
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
+      (source.active ? 'activating' : 'inactive').toLowerCase().includes(search.toLowerCase()) ||
       (source.url || '').toLowerCase().includes(search.toLowerCase()),
   )
+
   return (
     <>
       <input
@@ -362,19 +558,22 @@ const ShowNewsSources = () => {
         onChange={(e) => setSearch(e.target.value)}
         className="searchInput"
       />
+      <CButtonGroup role="group" aria-label="First group">
+        <CButton color="primary">1</CButton>
+        <CButton color="primary">2</CButton>
+        <CButton color="primary">3</CButton>
+        <CButton color="primary">4</CButton>
+      </CButtonGroup>
       <CCardBody>
         <CTable striped align="middle" className="mb-0 border" hover responsive>
           <CTableHead>
             <CTableRow>
-              {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
+              <CTableHeaderCell className="bg-body-tertiary" scope="col"></CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
                 Name
               </CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
                 Description
-              </CTableHeaderCell>
-              <CTableHeaderCell className="bg-body-tertiary" scope="col">
-                Format
               </CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
                 Date Created
@@ -394,23 +593,25 @@ const ShowNewsSources = () => {
                 <>
                   <div key={index}></div>
                   <CTableRow>
-                    {/* <CTableHeaderCell scope="row"> {source.sourceId}</CTableHeaderCell> */}
+                    <CTableDataCell>
+                      <img src={source.logo} alt="logo" className="logo-image" />
+                    </CTableDataCell>
                     <CTableDataCell>{source.name}</CTableDataCell>
                     <CTableDataCell> {source.description}</CTableDataCell>
-                    <CTableDataCell>{source.format}</CTableDataCell>
-                    <CTableDataCell>{source.dateCreated}</CTableDataCell>
+                    <CTableDataCell>
+                      {source.dateCreated?.toDate().toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                      })}
+                    </CTableDataCell>
                     <CTableDataCell>
                       {source.active === true ? (
-                        <CButton
-                          color={'success'}
-                          variant="ghost"
-                          key={index}
-                          disabled={'disabled'}
-                        >
+                        <CButton color={'success'} variant="ghost" key={index} disabled={true}>
                           {'Activating'.charAt(0).toUpperCase() + 'Activating'.slice(1)}
                         </CButton>
                       ) : (
-                        <CButton color={'danger'} variant="ghost" key={index} disabled={'disabled'}>
+                        <CButton color={'danger'} variant="ghost" key={index} disabled={true}>
                           {'Inactivating'.charAt(0).toUpperCase() + 'Inactivating'.slice(1)}
                         </CButton>
                       )}

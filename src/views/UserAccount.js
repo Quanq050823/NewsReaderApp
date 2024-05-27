@@ -15,22 +15,6 @@ import {
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react'
-import {
-  cibCcAmex,
-  cibCcApplePay,
-  cibCcMastercard,
-  cibCcPaypal,
-  cibCcStripe,
-  cibCcVisa,
-  cifBr,
-  cifEs,
-  cifFr,
-  cifIn,
-  cifPl,
-  cifUs,
-  cilPeople,
-} from '@coreui/icons'
-import user_avatar from 'src/assets/images/avatars/user_avatar.jpg'
 import { collection, addDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { ShowUser, ShowUserTable } from '../Controller/UserAPI'

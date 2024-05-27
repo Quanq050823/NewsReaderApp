@@ -26,7 +26,7 @@
 .custom-input-select-active {
     width: 200px; 
     margin-bottom: 20px; 
-    background-color: #9af5cc;
+    background-color: rgb(87, 171, 133);
 }
 .custom-input-select-inactive {
     width: 200px; 
@@ -78,4 +78,17 @@
   margin-right: 60px;
   margin-top: 17px;
   background-color: #f5ffff !important;
+}
+
+.logo-image {
+  width: 35px;
+  height: 35px;
+}
+
+.button-topic {
+  margin: 4px;
+}
+
+.button-add-topic {
+    width: 50px;
 }

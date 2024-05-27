@@ -33,7 +33,6 @@ export const AddingTopicModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [datecreated, setDatecreated] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
 
   const closemodel = () => {
@@ -45,7 +44,7 @@ export const AddingTopicModal = () => {
     await addDoc(collection(db, 'topic'), {
       name: name,
       description: description,
-      dateCreated: datecreated.toLocaleString(),
+      dateCreated: new Date(),
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -88,14 +87,6 @@ export const AddingTopicModal = () => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
-                <CFormInput
-                  aria-label="Date Created"
-                  value={datecreated}
-                  onChange={(e) => setDatecreated(e.target.value)}
-                />
-              </CInputGroup>
             </CCardBody>
           </CCol>
         </CModalBody>
@@ -133,7 +124,6 @@ const EditTopicModal = ({ topicId }) => {
     await updateDoc(dbRef, {
       name: name,
       description: description,
-      dateCreated: datecreated,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -151,12 +141,13 @@ const EditTopicModal = ({ topicId }) => {
         if (docSnap.exists()) {
           setName(docSnap.data().name)
           setDescription(docSnap.data().description)
-          setDatecreated(docSnap.data().dateCreated?.toLocaleString())
+          setDatecreated(docSnap.data().dateCreated?.toDate().toLocaleString() || '')
         } else {
           console.log('No such document!')
         }
       } 
       fetchData()
+            console.log('fetch data')
     }
   }, [visibleLg])
   const closemodel = () => {
@@ -286,17 +277,19 @@ const ShowNewsTopic = () => {
       }
     })
     setNewsTopic(tempArray)
-  }
-  fetchData()
-    const filteredTopics = newsTopic.filter(
-      (topic) =>
-        (topic.name || '').toLowerCase().includes(search.toLowerCase()) ||
-        (topic.description || '').toLowerCase().includes(search.toLowerCase()) ||
-        (new Date(topic.dateCreated || '').toLocaleString() || '')
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        (topic.DateCreated || '').toLowerCase().includes(search.toLowerCase()),
-    )
+  };
+  useEffect(() => {
+    fetchData()
+          console.log('fetch data')
+  }, []) 
+
+  const filteredTopics = newsTopic.filter(
+    (topic) =>
+      (topic.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (topic.description || '').toLowerCase().includes(search.toLowerCase()) ||
+      new Date(topic.dateCreated || '').toLocaleString() ||
+      '',
+  )
   return (
     <>
       <input
@@ -331,7 +324,9 @@ const ShowNewsTopic = () => {
                     {/* <CTableHeaderCell scope="row"> {topic.topicId}</CTableHeaderCell> */}
                     <CTableDataCell>{topic.name}</CTableDataCell>
                     <CTableDataCell> {topic.description}</CTableDataCell>
-                    <CTableDataCell>{topic.dateCreated.toLocaleString()}</CTableDataCell>
+                    <CTableDataCell>
+                      {(topic.dateCreated?.toDate()).toLocaleString() || ''}
+                    </CTableDataCell>
                     <CTableDataCell className="button-container">
                       <div className="edit-modal">
                         <EditTopicModal topicId={topic.topicId} />

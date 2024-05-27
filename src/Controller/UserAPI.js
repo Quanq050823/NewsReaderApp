@@ -57,7 +57,6 @@ const EditUserModal = ({ userId }) => {
       email: email,
       password: password,
       type: type,
-      dateCreated: datecreated,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -316,12 +315,19 @@ const ShowUserTable = () => {
                     </CTableDataCell>
                     <CTableDataCell className="text-center">
                       <CButton
-                        color={'success'}
+                        color={user.userStatus === 'Active' ? 'success' : 'danger'}
                         shape="rounded-pill"
                         key={index}
-                        title="This account is activating"
+                        title={
+                          user.userStatus === 'Active'
+                            ? 'This account is Online'
+                            : 'This account is Offline'
+                        }
                       >
-                        {'active'.charAt(0).toUpperCase() + 'active'.slice(1)}
+                        {
+                          user.userStatus === 'Active'
+                            ? 'Active'
+                            : 'Offline'}
                       </CButton>
                     </CTableDataCell>
                     <CTableDataCell>{user.email}</CTableDataCell>
@@ -331,16 +337,6 @@ const ShowUserTable = () => {
                         {user.lastActive?.toDate().toLocaleString() || ''}
                       </div>
                     </CTableDataCell>
-                    {/* <CTableDataCell>
-                      <CTableDataCell className="button-container">
-                        <div className="edit-modal">
-                          <EditUserModal userId={user.userId} />
-                        </div>
-                        <div className="delete-modal">
-                          <DeleteUserModal userId={user.userId} />
-                        </div>
-                      </CTableDataCell>
-                    </CTableDataCell> */}
                   </CTableRow>
                 ))}
               </>
