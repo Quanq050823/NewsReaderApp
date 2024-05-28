@@ -23,39 +23,48 @@ import {
   CPagination,
   CPaginationItem,
 } from '@coreui/react'
-import { collection, doc, setDoc, addDoc, getDoc, getDocs, updateDoc, deleteField, deleteDoc } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  setDoc,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteField,
+  deleteDoc,
+} from 'firebase/firestore'
 import { db } from '../firebase'
-import { cilArrowRight, cilColorBorder, cilDelete, cilPlus, cilX } from '@coreui/icons'
+import { cilArrowRight, cilColorBorder, cilDelete, cilPlus, cilSearch } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-const AddingSourceModal = ({ sourceId }) => {
+const AddingArticleModal = ({ articleId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
-  const [logo, setLogo] = useState('')
+  const [image, setImage] = useState('')
   const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [datecreated, setDatecreated] = useState('')
+  const [title, setTitle] = useState('')
+  const [datePublished, setDatePublished] = useState('')
   const [status, setStatus] = useState(true)
-  const [format, setFormat] = useState('')
-  const [topic, setTopic] = useState([])
-  const [inputTopic, setInputTopic] = useState('')
+  const [author, setAuthor] = useState([])
+  const [inputAuthor, setInputAuthor] = useState('')
   const [url, setURL] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
-  const [deletetopicmodal, showdeletetopicmodal] = useState(false)
+  const [deleteauthormodal, showdeleteauthormodal] = useState(false)
   const [deleteIndex, setDeleteIndex] = useState(null)
-  const EditData = async (sourceId) => {
-    if (name === undefined || description === undefined || datecreated === undefined) {
+  const EditData = async (articleId) => {
+    if (name === undefined || title === undefined || datePublished === undefined) {
       console.error('One of the values is undefined')
       return
     }
-    await addDoc(collection(db, 'source'), {
-      logo: logo,
+    await addDoc(collection(db, 'article'), {
+      image: image,
       name: name,
-      description: description,
-      dateCreated: new Date(),
+      title: title,
+      datePublished: new Date(),
       active: status,
       url: url,
-      topic: topic,
-      format: format,
+      view: 0,
+      author: author,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -64,25 +73,24 @@ const AddingSourceModal = ({ sourceId }) => {
         setMessage({ text: 'Error adding document: ', type: 'error' })
       })
   }
-  const handleAddTopic = () => {
-    setTopic([...topic, inputTopic])
-    setInputTopic('')
+  const handleAddAuthor = () => {
+    setAuthor([...author, inputAuthor])
+    setInputAuthor('')
   }
   useEffect(() => {
     if (visibleLg) {
       const fetchData = async () => {
-        const docRef = doc(db, 'source', sourceId)
+        const docRef = doc(db, 'article', articleId)
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          setLogo(docSnap.data().logo)
+          setImage(docSnap.data().image)
           setName(docSnap.data().name)
-          setDescription(docSnap.data().description)
-          setDatecreated(docSnap.data().dateCreated?.toDate().toLocaleString() || '')
+          setTitle(docSnap.data().title)
+          setDatePublished(docSnap.data().datePublished?.toDate().toLocaleString() || '')
           setURL(docSnap.data().url)
           setStatus(docSnap.data().active)
-          setFormat(docSnap.data().format)
-          setTopic(docSnap.data().topic || [])
+          setAuthor(docSnap.data().author || [])
         } else {
           console.log('No such document!')
         }
@@ -95,23 +103,23 @@ const AddingSourceModal = ({ sourceId }) => {
     setVisibleLg(false)
     setMessage({ text: '', type: '' })
   }
-  const handleClose = () => showdeletetopicmodal(false)
+  const handleClose = () => showdeleteauthormodal(false)
   const handleShow = (index) => {
     setDeleteIndex(index)
-    showdeletetopicmodal(true)
+    showdeleteauthormodal(true)
   }
   const handleDelete = () => {
-    setTopic(topic.filter((_, index) => index !== deleteIndex))
+    setAuthor(author.filter((_, index) => index !== deleteIndex))
     handleClose()
   }
   return (
     <>
       <CButton className="custombuttonadd" color="success" onClick={() => setVisibleLg(!visibleLg)}>
-        <CIcon icon={cilPlus}/>
+        <CIcon icon={cilPlus} />
       </CButton>
       <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
         <CModalHeader className="custom-modal-header">
-          <CModalTitle>Adding News Source</CModalTitle>
+          <CModalTitle>Adding News Article</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <span className="custom-text-color">
@@ -120,49 +128,47 @@ const AddingSourceModal = ({ sourceId }) => {
           <CCol xs={12}>
             <CCardBody>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Logo URL</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Image URL</CInputGroupText>
                 <CFormInput
-                  aria-label="Logo URL"
-                  value={logo}
-                  onChange={(e) => setLogo(e.target.value)}
+                  aria-label="Image URL"
+                  value={image}
+                  onChange={(e) => setImage(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">
-                  News Source Name
-                </CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Author</CInputGroupText>
                 <CFormInput
-                  aria-label="News Source Name"
+                  aria-label="Author"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Title</CInputGroupText>
                 <CFormInput
-                  aria-label="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  aria-label="Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group" style={{ width: 350 }}>
-                <CInputGroupText className="custom-input-group-text">Topic</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Author</CInputGroupText>
                 <CFormInput
-                  aria-label="Input Topic"
+                  aria-label="Input Author"
                   placeholder="Add More..."
-                  value={inputTopic}
-                  onChange={(e) => setInputTopic(e.target.value)}
+                  value={inputAuthor}
+                  onChange={(e) => setInputAuthor(e.target.value)}
                 />
                 <CButton
                   color="success"
                   className="button-add-topic"
                   style={{ width: 40 }}
-                  onClick={handleAddTopic}
+                  onClick={handleAddAuthor}
                 >
                   <CIcon icon={cilArrowRight} className="me-2" />
                 </CButton>
               </CInputGroup>
-              {topic.map((item, index) => (
+              {author.map((item, index) => (
                 <CButton
                   color="success"
                   shape="rounded-pill"
@@ -173,11 +179,11 @@ const AddingSourceModal = ({ sourceId }) => {
                   {item}
                 </CButton>
               ))}
-              <CModal alignment="center" visible={deletetopicmodal} onClose={handleClose}>
+              <CModal alignment="center" visible={deleteauthormodal} onClose={handleClose}>
                 <CModalHeader className="custom-modal-header-delete">
                   <CModalTitle>Confirm Deletion</CModalTitle>
                 </CModalHeader>
-                <CModalBody>Are you sure you want to delete this topic?</CModalBody>
+                <CModalBody>Are you sure you want to delete this author?</CModalBody>
                 {message.text && (
                   <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
                     {message.text}
@@ -195,20 +201,14 @@ const AddingSourceModal = ({ sourceId }) => {
               <br />
               <br />
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Format</CInputGroupText>
-                <CFormInput
-                  aria-label="Format"
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">
+                  Date Published
+                </CInputGroupText>
                 <CFormInput
                   disabled={true}
-                  aria-label="Date Created"
+                  aria-label="Date Published"
                   value={new Date().toLocaleString('en-US')}
-                  onChange={(e) => setDatecreated(e.target.value)}
+                  onChange={(e) => setDatePublished(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
@@ -240,7 +240,7 @@ const AddingSourceModal = ({ sourceId }) => {
           <CButton color="secondary" onClick={() => closemodel()}>
             Close
           </CButton>
-          <CButton color="primary" onClick={() => EditData(sourceId)}>
+          <CButton color="primary" onClick={() => EditData(articleId)}>
             Save changes
           </CButton>
         </CModalFooter>
@@ -249,62 +249,61 @@ const AddingSourceModal = ({ sourceId }) => {
   )
 }
 
-const EditSourceModal = ({sourceId}) => {
+const EditArticleModal = ({ articleId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
-  const [logo, setLogo] = useState('')
+  const [image, setImage] = useState('')
   const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [datecreated, setDatecreated] = useState('')
+  const [title, setTitle] = useState('')
+  const [datePublished, setDatePublished] = useState('')
   const [status, setStatus] = useState(true)
-  const [format, setFormat] = useState('')
-  const [topic, setTopic] = useState([])
-  const [inputTopic, setInputTopic] = useState('')
+  const [author, setAuthor] = useState([])
+  const [inputAuthor, setInputAuthor] = useState('')
   const [url, setURL] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
-  const [deletetopicmodal, showdeletetopicmodal] = useState(false)
+  const [deleteauthormodal, showdeleteauthormodal] = useState(false)
   const [deleteIndex, setDeleteIndex] = useState(null)
-  const EditData = async (sourceId) => {
-  if (name === undefined || description === undefined || datecreated === undefined) {
-    console.error('One of the values is undefined');
-    return;
+  const [sources, setSources] = useState([])
+  const [sourceschoosen, setSourceschoosen] = useState()
+
+  const EditData = async (articleId) => {
+    if (author === undefined || title === undefined || datePublished === undefined) {
+      console.error('One of the values is undefined')
+      return
+    }
+    const dbRef = doc(db, 'article', articleId)
+    await updateDoc(dbRef, {
+      image: image,
+      author: author,
+      title: title,
+      url: url,
+      source: sourceschoosen,
+    })
+      .then(() => {
+        setMessage({ text: 'Data saved successfully', type: 'success' })
+      })
+      .catch(() => {
+        setMessage({ text: 'Error adding document: ', type: 'error' })
+      })
   }
 
-  const dbRef = doc(db, 'source', sourceId);
-  await updateDoc(dbRef, {
-    logo: logo,
-    name: name,
-    description: description,
-    active: status,
-    url: url,
-    topic: topic,
-    format: format,
-  })
-    .then(() => {
-      setMessage({ text: 'Data saved successfully', type: 'success' })
-    })
-    .catch(() => {
-      setMessage({ text: 'Error adding document: ', type: 'error' })
-    })
-  }
-  const handleAddTopic = () => {
-    setTopic([...topic, inputTopic])
-    setInputTopic('')
+  const handleAddAuthor = () => {
+    setAuthor([...author, inputAuthor])
+    setInputAuthor('')
   }
   useEffect(() => {
     if (visibleLg) {
       const fetchData = async () => {
-        const docRef = doc(db, 'source', sourceId)
+        const docRef = doc(db, 'article', articleId)
         const docSnap = await getDoc(docRef)
-
         if (docSnap.exists()) {
-          setLogo(docSnap.data().logo)
+          setImage(docSnap.data().image)
           setName(docSnap.data().name)
-          setDescription(docSnap.data().description)
-          setDatecreated(docSnap.data().dateCreated?.toDate().toLocaleString() || '')
+          setTitle(docSnap.data().title)
+          setDatePublished(docSnap.data().datePublished?.toDate().toLocaleString() || '')
           setURL(docSnap.data().url)
           setStatus(docSnap.data().active)
-          setFormat(docSnap.data().format)
-          setTopic(docSnap.data().topic || [])
+          setSourceschoosen(docSnap.data().source)
+          setAuthor(docSnap.data().author || [])
         } else {
           console.log('No such document!')
         }
@@ -313,27 +312,41 @@ const EditSourceModal = ({sourceId}) => {
       console.log('fetch data')
     }
   }, [visibleLg])
+  useEffect(() => {
+  const fetchSources = async () => {
+    const querySnapshot = await getDocs(collection(db, 'source'))
+    const tempArray = querySnapshot.docs.map((doc) => {
+      return {
+        ...doc.data(),
+        sourceId: doc.id,
+      }
+    })
+    setSources(tempArray)
+  }
+
+    fetchSources()
+  }, [])
   const closemodel = () => {
     setVisibleLg(false)
     setMessage({ text: '', type: '' })
   }
-  const handleClose = () => showdeletetopicmodal(false)
+  const handleClose = () => showdeleteauthormodal(false)
   const handleShow = (index) => {
     setDeleteIndex(index)
-    showdeletetopicmodal(true)
+    showdeleteauthormodal(true)
   }
   const handleDelete = () => {
-    setTopic(topic.filter((_, index) => index !== deleteIndex))
+    setAuthor(author.filter((_, index) => index !== deleteIndex))
     handleClose()
   }
   return (
     <>
       <CButton color="primary" onClick={() => setVisibleLg(!visibleLg)}>
-        <CIcon icon={cilColorBorder}/>
+        <CIcon icon={cilColorBorder} />
       </CButton>
       <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
         <CModalHeader className="custom-modal-header-edit">
-          <CModalTitle>Edit News Source</CModalTitle>
+          <CModalTitle>Edit Article</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <span className="custom-text-color">
@@ -342,49 +355,31 @@ const EditSourceModal = ({sourceId}) => {
           <CCol xs={12}>
             <CCardBody>
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Logo URL</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Image URL</CInputGroupText>
                 <CFormInput
-                  aria-label="Logo URL"
-                  value={logo}
-                  onChange={(e) => setLogo(e.target.value)}
-                />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">
-                  News Source Name
-                </CInputGroupText>
-                <CFormInput
-                  aria-label="News Source Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Description</CInputGroupText>
-                <CFormInput
-                  aria-label="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  aria-label="Image URL"
+                  value={image}
+                  onChange={(e) => setImage(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group" style={{ width: 350 }}>
-                <CInputGroupText className="custom-input-group-text">Topic</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Author</CInputGroupText>
                 <CFormInput
-                  aria-label="Input Topic"
+                  aria-label="Input Author"
                   placeholder="Add More..."
-                  value={inputTopic}
-                  onChange={(e) => setInputTopic(e.target.value)}
+                  value={inputAuthor}
+                  onChange={(e) => setInputAuthor(e.target.value)}
                 />
                 <CButton
                   color="success"
                   className="button-add-topic"
                   style={{ width: 40 }}
-                  onClick={handleAddTopic}
+                  onClick={handleAddAuthor}
                 >
                   <CIcon icon={cilArrowRight} className="me-2" />
                 </CButton>
               </CInputGroup>
-              {topic.map((item, index) => (
+              {author.map((item, index) => (
                 <CButton
                   color="success"
                   shape="rounded-pill"
@@ -395,11 +390,11 @@ const EditSourceModal = ({sourceId}) => {
                   {item}
                 </CButton>
               ))}
-              <CModal alignment="center" visible={deletetopicmodal} onClose={handleClose}>
+              <CModal alignment="center" visible={deleteauthormodal} onClose={handleClose}>
                 <CModalHeader className="custom-modal-header-delete">
                   <CModalTitle>Confirm Deletion</CModalTitle>
                 </CModalHeader>
-                <CModalBody>Are you sure you want to delete this topic?</CModalBody>
+                <CModalBody>Are you sure you want to delete this author?</CModalBody>
                 {message.text && (
                   <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
                     {message.text}
@@ -417,39 +412,45 @@ const EditSourceModal = ({sourceId}) => {
               <br />
               <br />
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Format</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">Title</CInputGroupText>
                 <CFormInput
-                  aria-label="Format"
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
+                  aria-label="Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
               </CInputGroup>
+              <CFormSelect
+                className="-input-select"
+                aria-label="Default select example"
+                value={sourceschoosen}
+                onChange={(e) => setSourceschoosen(e.target.value)}
+              >
+                {sources.map((source, index) => (
+                  <option
+                    key={index}
+                    value={`/source/${source.sourceId}`}
+                    className="custom-input-select-active"
+                  >
+                    {source.name}
+                  </option>
+                ))}
+              </CFormSelect>
+              <br />
               <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
+                <CInputGroupText className="custom-input-group-text">
+                  Date Published
+                </CInputGroupText>
                 <CFormInput
                   disabled={true}
-                  aria-label="Date Created"
-                  value={datecreated}
-                  onChange={(e) => setDatecreated(e.target.value)}
+                  aria-label="Date Published"
+                  value={datePublished}
+                  onChange={(e) => setDatePublished(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">URL</CInputGroupText>
                 <CFormInput aria-label="URL" value={url} onChange={(e) => setURL(e.target.value)} />
               </CInputGroup>
-              <CFormSelect
-                className="-input-select"
-                aria-label="Default select example"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value={true} className="custom-input-select-active">
-                  Active
-                </option>
-                <option value={false} className="custom-input-select-inactive">
-                  Inactive
-                </option>
-              </CFormSelect>
             </CCardBody>
           </CCol>
         </CModalBody>
@@ -462,7 +463,7 @@ const EditSourceModal = ({sourceId}) => {
           <CButton color="secondary" onClick={() => closemodel()}>
             Close
           </CButton>
-          <CButton color="primary" onClick={() => EditData(sourceId)}>
+          <CButton color="primary" onClick={() => EditData(articleId)}>
             Save changes
           </CButton>
         </CModalFooter>
@@ -471,13 +472,13 @@ const EditSourceModal = ({sourceId}) => {
   )
 }
 
-const DeleteSourceModal = ({ sourceId }) => {
+const DeleteArticleModal = ({ articleId }) => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
   const [visible, setVisible] = useState(false)
 
-  const DeleteData = async (sourceId) => {
-    const dbRef = doc(db, 'source', sourceId)
+  const DeleteData = async (articleId) => {
+    const dbRef = doc(db, 'article', articleId)
     await deleteDoc(dbRef)
       .then(() => {
         setMessage({ text: 'Data removed successfully', type: 'success' })
@@ -494,7 +495,7 @@ const DeleteSourceModal = ({ sourceId }) => {
   return (
     <>
       <CButton color="danger" onClick={() => setVisible(!visible)}>
-        <CIcon icon={cilDelete} className='me-1'/>
+        <CIcon icon={cilDelete} />
       </CButton>
       <CModal alignment="center" visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader className="custom-modal-header-delete">
@@ -510,7 +511,7 @@ const DeleteSourceModal = ({ sourceId }) => {
           <CButton color="secondary" onClick={() => closemodel()}>
             Close
           </CButton>
-          <CButton color="danger" onClick={() => DeleteData(sourceId)}>
+          <CButton color="danger" onClick={() => DeleteData(articleId)}>
             Delete
           </CButton>
         </CModalFooter>
@@ -519,19 +520,19 @@ const DeleteSourceModal = ({ sourceId }) => {
   )
 }
 
-const ShowNewsSources = () => {
-  let [newsSources, setNewsSources] = useState([])
+const ShowArticle = () => {
+  let [article, setArticle] = useState([])
   let [search, setSearch] = useState('')
 
   const fetchData = async () => {
-    const querySnapshot = await getDocs(collection(db, 'source'))
+    const querySnapshot = await getDocs(collection(db, 'article'))
     const tempArray = querySnapshot.docs.map((doc) => {
       return {
         ...doc.data(),
-        sourceId: doc.id,
+        articleId: doc.id,
       }
     })
-    setNewsSources(tempArray)
+    setArticle(tempArray)
   }
 
   useEffect(() => {
@@ -540,24 +541,32 @@ const ShowNewsSources = () => {
 
   console.log('fetch data')
 
-  const filteredSources = newsSources.filter(
-    (source) =>
-      (source.name || '').toLowerCase().includes(search.toLowerCase()) ||
-      (source.description || '').toLowerCase().includes(search.toLowerCase()) ||
-      (new Date(source.dateCreated.toDate() || '').toLocaleString() || '')
+  const filteredArticles = article.filter(
+    (article) =>
+      (article.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (article.title || '').toLowerCase().includes(search.toLowerCase()) ||
+      (new Date(article.datePublished.toDate() || '').toLocaleString() || '')
         .toLowerCase()
         .includes(search.toLowerCase()) ||
-      (source.active ? 'activating' : 'inactive').toLowerCase().includes(search.toLowerCase()) ||
-      (source.url || '').toLowerCase().includes(search.toLowerCase()),
+      (article.active ? 'activating' : 'inactive').toLowerCase().includes(search.toLowerCase()) ||
+      (article.url || '').toLowerCase().includes(search.toLowerCase()),
   )
 
   let [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
-  const totalPages = Math.ceil(filteredSources.length / itemsPerPage)
-  const currentItems = filteredSources.slice(
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage)
+  const currentItems = filteredArticles.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   )
+  const maxPageNumbersToShow = 10
+  let startPage = Math.max(currentPage - Math.floor(maxPageNumbersToShow / 2), 1)
+  let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages)
+
+  // Adjust if we're at the end of the page numbers
+  if (endPage === totalPages) {
+    startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1)
+  }
 
   return (
     <>
@@ -573,59 +582,45 @@ const ShowNewsSources = () => {
             <CTableRow>
               <CTableHeaderCell className="bg-body-tertiary" scope="col"></CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
-                Name
+                Author
               </CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
-                Description
+                Title
               </CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
-                Date Created
+                Date Published
               </CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
-                Activate Status
-              </CTableHeaderCell>
-              <CTableHeaderCell className="bg-body-tertiary" scope="col">
-                URL
+                <CIcon icon={cilSearch} />
               </CTableHeaderCell>
               <CTableHeaderCell className="bg-body-tertiary" scope="col"></CTableHeaderCell>
             </CTableRow>
           </CTableHead>
           <CTableBody>
             <>
-              {currentItems.map((source, index) => (
+              {currentItems.map((article, index) => (
                 <>
                   <div key={index}></div>
                   <CTableRow>
                     <CTableDataCell>
-                      <img src={source.logo} alt="logo" className="logo-image" />
+                      <img src={article.image} alt="image" className="logo-image" />
                     </CTableDataCell>
-                    <CTableDataCell>{source.name}</CTableDataCell>
-                    <CTableDataCell> {source.description}</CTableDataCell>
+                    <CTableDataCell>{article.author.join(', ')}</CTableDataCell>
+                    <CTableDataCell> {article.title}</CTableDataCell>
                     <CTableDataCell>
-                      {source.dateCreated?.toDate().toLocaleDateString('en-US', {
+                      {article.datePublished?.toDate().toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit',
                       })}
                     </CTableDataCell>
-                    <CTableDataCell>
-                      {source.active === true ? (
-                        <CButton color={'success'} variant="ghost" key={index} disabled={true}>
-                          {'Activating'.charAt(0).toUpperCase() + 'Activating'.slice(1)}
-                        </CButton>
-                      ) : (
-                        <CButton color={'danger'} variant="ghost" key={index} disabled={true}>
-                          {'Inactivating'.charAt(0).toUpperCase() + 'Inactivating'.slice(1)}
-                        </CButton>
-                      )}
-                    </CTableDataCell>
-                    <CTableDataCell>{source.url}</CTableDataCell>
+                    <CTableDataCell>{article.view}</CTableDataCell>
                     <CTableDataCell className="button-container">
                       <div className="edit-modal">
-                        <EditSourceModal sourceId={source.sourceId} />
+                        <EditArticleModal articleId={article.articleId} />
                       </div>
                       <div className="delete-modal">
-                        <DeleteSourceModal sourceId={source.sourceId} />
+                        <DeleteArticleModal articleId={article.articleId} />
                       </div>
                     </CTableDataCell>
                   </CTableRow>
@@ -642,14 +637,18 @@ const ShowNewsSources = () => {
           >
             <span aria-hidden="true">&laquo;</span>
           </CPaginationItem>
-          {[...Array(totalPages)].map((_, index) => (
-            <CPaginationItem
-              key={index}
-              onClick={() => setCurrentPage(index + 1)} // Set currentPage to the clicked page number
-            >
-              {index + 1}
-            </CPaginationItem>
-          ))}
+          {[...Array(endPage - startPage + 1)].map((_, index) => {
+            const pageNumber = startPage + index
+            return (
+              <CPaginationItem
+                key={index}
+                active={pageNumber === currentPage} // Highlight this item if its page number is the current page
+                onClick={() => setCurrentPage(pageNumber)} // Set currentPage to the clicked page number
+              >
+                {pageNumber}
+              </CPaginationItem>
+            )
+          })}
           <CPaginationItem
             aria-label="Next"
             onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} // Increase currentPage by 1, but not more than totalPages
@@ -657,11 +656,11 @@ const ShowNewsSources = () => {
             <span aria-hidden="true">&raquo;</span>
           </CPaginationItem>
         </CPagination>
-        <AddingSourceModal />
+        <AddingArticleModal />
       </CCardBody>
     </>
   )
 }
-export default ShowNewsSources
+export default ShowArticle
 
-export { ShowNewsSources }
+export { ShowArticle }

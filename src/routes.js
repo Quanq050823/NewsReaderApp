@@ -52,6 +52,7 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 const NewsSource = React.lazy(() => import('./views/NewsSource'))
 const NewsTopic = React.lazy(() => import('./views/NewsTopic'))
 const UserAccount = React.lazy(() => import('./views/UserAccount'))
+const Article = React.lazy(() => import('./views/Article'))
 
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
@@ -103,6 +104,7 @@ const routes = [
   { path: '/newsSource', name: 'News Sources', element: NewsSource },
   { path: '/newsTopic', name: 'News Topic', element: NewsTopic },
   { path: '/userAccount', name: 'User Account', element: UserAccount },
+  { path: '/article', name: 'Article', element: Article },
 ]
 
 export default routes

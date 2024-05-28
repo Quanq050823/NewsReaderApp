@@ -17,7 +17,8 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
-  CFormSelect,
+  CPagination,
+  CPaginationItem,
 } from '@coreui/react'
 import {
   cilPeople,
@@ -33,6 +34,7 @@ import {
   deleteDoc,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import {cilColorBorder, cilDelete} from '@coreui/icons'
 import user_avatar from 'src/assets/images/avatars/user_avatar.jpg'
 
 
@@ -99,7 +101,7 @@ const EditUserModal = ({ userId }) => {
   return (
     <>
       <CButton color="primary" onClick={() => setVisibleLg(!visibleLg)}>
-        Edit
+        <CIcon icon={cilColorBorder} />
       </CButton>
       <CModal alignment="center" size="lg" visible={visibleLg} onClose={() => setVisibleLg(false)}>
         <CModalHeader className="custom-modal-header-edit">
@@ -211,7 +213,7 @@ const DeleteUserModal = ({ userId }) => {
   return (
     <>
       <CButton color="danger" onClick={() => setVisible(!visible)}>
-        Delete
+        <CIcon icon={cilDelete} />
       </CButton>
       <CModal alignment="center" visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader className="custom-modal-header-delete">
@@ -273,6 +275,15 @@ const ShowUserTable = () => {
         .toLowerCase()
         .includes(search.toLowerCase()),
   )
+
+        let [currentPage, setCurrentPage] = useState(1)
+        const itemsPerPage = 5
+        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+        const currentItems = filteredUsers.slice(
+          (currentPage - 1) * itemsPerPage,
+          currentPage * itemsPerPage,
+        )
+
     return (
       <>
         <input
@@ -297,7 +308,7 @@ const ShowUserTable = () => {
             </CTableHead>
             <CTableBody>
               <>
-                {filteredUsers.map((user, index) => (
+                {currentItems.map((user, index) => (
                   <CTableRow v-for="user in tableUsers" key={index}>
                     <CTableDataCell className="text-center">
                       <CAvatar
@@ -324,10 +335,7 @@ const ShowUserTable = () => {
                             : 'This account is Offline'
                         }
                       >
-                        {
-                          user.userStatus === 'Active'
-                            ? 'Active'
-                            : 'Offline'}
+                        {user.userStatus === 'Active' ? 'Active' : 'Offline'}
                       </CButton>
                     </CTableDataCell>
                     <CTableDataCell>{user.email}</CTableDataCell>
@@ -342,6 +350,29 @@ const ShowUserTable = () => {
               </>
             </CTableBody>
           </CTable>
+          <br />
+          <CPagination aria-label="Page navigation example">
+            <CPaginationItem
+              aria-label="Previous"
+              onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))} // Decrease currentPage by 1, but not less than 1
+            >
+              <span aria-hidden="true">&laquo;</span>
+            </CPaginationItem>
+            {[...Array(totalPages)].map((_, index) => (
+              <CPaginationItem
+                key={index}
+                onClick={() => setCurrentPage(index + 1)} // Set currentPage to the clicked page number
+              >
+                {index + 1}
+              </CPaginationItem>
+            ))}
+            <CPaginationItem
+              aria-label="Next"
+              onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} // Increase currentPage by 1, but not more than totalPages
+            >
+              <span aria-hidden="true">&raquo;</span>
+            </CPaginationItem>
+          </CPagination>
         </CCardBody>
       </>
     )
@@ -383,6 +414,15 @@ const ShowUser = () => {
           .toLowerCase()
           .includes(search.toLowerCase()),
     )
+
+      let [currentPage, setCurrentPage] = useState(1)
+      const itemsPerPage = 5
+      const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+      const currentItems = filteredUsers.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage,
+      )
+
   return (
     <>
       <input
@@ -416,7 +456,7 @@ const ShowUser = () => {
           </CTableHead>
           <CTableBody>
             <>
-              {filteredUsers.map((user, index) => (
+              {currentItems.map((user, index) => (
                 <>
                   <div key={index}></div>
                   <CTableRow>
@@ -442,6 +482,29 @@ const ShowUser = () => {
             </>
           </CTableBody>
         </CTable>
+        <br />
+        <CPagination aria-label="Page navigation example">
+          <CPaginationItem
+            aria-label="Previous"
+            onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))} // Decrease currentPage by 1, but not less than 1
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </CPaginationItem>
+          {[...Array(totalPages)].map((_, index) => (
+            <CPaginationItem
+              key={index}
+              onClick={() => setCurrentPage(index + 1)} // Set currentPage to the clicked page number
+            >
+              {index + 1}
+            </CPaginationItem>
+          ))}
+          <CPaginationItem
+            aria-label="Next"
+            onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} // Increase currentPage by 1, but not more than totalPages
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </CPaginationItem>
+        </CPagination>
       </CCardBody>
     </>
   )
