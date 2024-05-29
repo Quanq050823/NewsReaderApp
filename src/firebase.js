@@ -11,10 +11,10 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+const db = getFirestore(app)
 
-export default app
-export { app }
+export default db
+export { db }
 
 
 

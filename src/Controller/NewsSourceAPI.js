@@ -28,6 +28,7 @@ import { db } from '../firebase'
 import { cilArrowRight, cilColorBorder, cilDelete, cilPlus, cilX } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
+
 const AddingSourceModal = ({ sourceId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [logo, setLogo] = useState('')
@@ -43,7 +44,7 @@ const AddingSourceModal = ({ sourceId }) => {
   const [deletetopicmodal, showdeletetopicmodal] = useState(false)
   const [deleteIndex, setDeleteIndex] = useState(null)
   const EditData = async (sourceId) => {
-    if (name === undefined || description === undefined || datecreated === undefined) {
+    if (name === undefined || description === undefined) {
       console.error('One of the values is undefined')
       return
     }
@@ -78,7 +79,7 @@ const AddingSourceModal = ({ sourceId }) => {
           setLogo(docSnap.data().logo)
           setName(docSnap.data().name)
           setDescription(docSnap.data().description)
-          setDatecreated(docSnap.data().dateCreated?.toDate().toLocaleString() || '')
+          setDatecreated(new Date())
           setURL(docSnap.data().url)
           setStatus(docSnap.data().active)
           setFormat(docSnap.data().format)
@@ -559,6 +560,15 @@ const ShowNewsSources = () => {
     currentPage * itemsPerPage,
   )
 
+  const maxPageNumbersToShow = 10
+  let startPage = Math.max(currentPage - Math.floor(maxPageNumbersToShow / 2), 1)
+  let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages)
+
+  // Adjust if we're at the end of the page numbers
+  if (endPage === totalPages) {
+    startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1)
+  }
+
   return (
     <>
       <input
@@ -642,14 +652,18 @@ const ShowNewsSources = () => {
           >
             <span aria-hidden="true">&laquo;</span>
           </CPaginationItem>
-          {[...Array(totalPages)].map((_, index) => (
-            <CPaginationItem
-              key={index}
-              onClick={() => setCurrentPage(index + 1)} // Set currentPage to the clicked page number
-            >
-              {index + 1}
-            </CPaginationItem>
-          ))}
+          {[...Array(endPage - startPage + 1)].map((_, index) => {
+            const pageNumber = startPage + index
+            return (
+              <CPaginationItem
+                key={index}
+                active={pageNumber === currentPage} // Highlight this item if its page number is the current page
+                onClick={() => setCurrentPage(pageNumber)} // Set currentPage to the clicked page number
+              >
+                {pageNumber}
+              </CPaginationItem>
+            )
+          })}
           <CPaginationItem
             aria-label="Next"
             onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} // Increase currentPage by 1, but not more than totalPages

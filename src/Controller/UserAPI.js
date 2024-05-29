@@ -48,6 +48,7 @@ const EditUserModal = ({ userId }) => {
   const [datecreated, setDatecreated] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
   const [status, setStatus] = useState('')
+
   const EditData = async (userId) => {
     if (name === undefined || email === undefined || datecreated === undefined) {
       console.error('One of the values is undefined')
@@ -57,8 +58,6 @@ const EditUserModal = ({ userId }) => {
     await updateDoc(dbRef, {
       username: name,
       email: email,
-      password: password,
-      type: type,
     })
       .then(() => {
         setMessage({ text: 'Data saved successfully', type: 'success' })
@@ -67,6 +66,7 @@ const EditUserModal = ({ userId }) => {
         setMessage({ text: 'Error adding document: ', type: 'error' })
       })
   }
+  
   
   useEffect(() => {
     if (visibleLg) {
@@ -81,10 +81,15 @@ const EditUserModal = ({ userId }) => {
             const userStatusDoc = await getDoc(data.status)
             userStatus = userStatusDoc.data().name
           }
+          let userType = ''
+          if (data.type) {
+            const userTypeDoc = await getDoc(data.type)
+            userType = userTypeDoc.data().name
+          }
           setName(data.username)
           setEmail(data.email)
           setPassword(data.password)
-          setType(data.type)
+          setType(data.userTypeDoc)
           setDatecreated(data.dateCreated?.toDate().toLocaleString())
           setStatus(userStatus) // set the status
         } else {
@@ -129,37 +134,15 @@ const EditUserModal = ({ userId }) => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </CInputGroup>
-              {/* <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Password</CInputGroupText>
-                <CFormInput
-                  aria-label="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </CInputGroup> */}
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Type</CInputGroupText>
                 <CFormInput
                   disabled={true}
                   aria-label="Type"
-                  value="Administrator"
+                  value="Reader"
                   onChange={(e) => setType(e.target.value)}
                 />
               </CInputGroup>
-              {/* <CFormSelect
-                className="-input-select"
-                aria-label="Default select example"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                <option value="User" className="custom-input-select-active">
-                  User
-                </option>
-                <option value="Admin" className="custom-input-select-inactive">
-                  Administrator
-                </option>
-              </CFormSelect> */}
-              {/* <br /> */}
               <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">Date Created</CInputGroupText>
                 <CFormInput
@@ -276,13 +259,21 @@ const ShowUserTable = () => {
         .includes(search.toLowerCase()),
   )
 
-        let [currentPage, setCurrentPage] = useState(1)
-        const itemsPerPage = 5
-        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-        const currentItems = filteredUsers.slice(
-          (currentPage - 1) * itemsPerPage,
-          currentPage * itemsPerPage,
-        )
+  let [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const currentItems = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  )
+  const maxPageNumbersToShow = 10
+  let startPage = Math.max(currentPage - Math.floor(maxPageNumbersToShow / 2), 1)
+  let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages)
+
+  // Adjust if we're at the end of the page numbers
+  if (endPage === totalPages) {
+    startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1)
+  }
 
     return (
       <>
@@ -358,14 +349,18 @@ const ShowUserTable = () => {
             >
               <span aria-hidden="true">&laquo;</span>
             </CPaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <CPaginationItem
-                key={index}
-                onClick={() => setCurrentPage(index + 1)} // Set currentPage to the clicked page number
-              >
-                {index + 1}
-              </CPaginationItem>
-            ))}
+            {[...Array(endPage - startPage + 1)].map((_, index) => {
+              const pageNumber = startPage + index
+              return (
+                <CPaginationItem
+                  key={index}
+                  active={pageNumber === currentPage} // Highlight this item if its page number is the current page
+                  onClick={() => setCurrentPage(pageNumber)} // Set currentPage to the clicked page number
+                >
+                  {pageNumber}
+                </CPaginationItem>
+              )
+            })}
             <CPaginationItem
               aria-label="Next"
               onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} // Increase currentPage by 1, but not more than totalPages
@@ -415,13 +410,21 @@ const ShowUser = () => {
           .includes(search.toLowerCase()),
     )
 
-      let [currentPage, setCurrentPage] = useState(1)
-      const itemsPerPage = 5
-      const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-      const currentItems = filteredUsers.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
-      )
+  let [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const currentItems = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  )
+  const maxPageNumbersToShow = 10
+  let startPage = Math.max(currentPage - Math.floor(maxPageNumbersToShow / 2), 1)
+  let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages)
+
+  // Adjust if we're at the end of the page numbers
+  if (endPage === totalPages) {
+    startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1)
+  }
 
   return (
     <>
@@ -464,7 +467,7 @@ const ShowUser = () => {
                     <CTableDataCell>{String(user.username)}</CTableDataCell>
                     <CTableDataCell>{String(user.email)}</CTableDataCell>
                     <CTableDataCell>•••••••••••</CTableDataCell>
-                    <CTableDataCell>{user.userType?.toString()}</CTableDataCell>
+                    <CTableDataCell>{user.userType}</CTableDataCell>
                     <CTableDataCell>
                       {user.dateCreated?.toDate().toLocaleString() || ''}
                     </CTableDataCell>
@@ -490,14 +493,18 @@ const ShowUser = () => {
           >
             <span aria-hidden="true">&laquo;</span>
           </CPaginationItem>
-          {[...Array(totalPages)].map((_, index) => (
-            <CPaginationItem
-              key={index}
-              onClick={() => setCurrentPage(index + 1)} // Set currentPage to the clicked page number
-            >
-              {index + 1}
-            </CPaginationItem>
-          ))}
+          {[...Array(endPage - startPage + 1)].map((_, index) => {
+            const pageNumber = startPage + index
+            return (
+              <CPaginationItem
+                key={index}
+                active={pageNumber === currentPage} // Highlight this item if its page number is the current page
+                onClick={() => setCurrentPage(pageNumber)} // Set currentPage to the clicked page number
+              >
+                {pageNumber}
+              </CPaginationItem>
+            )
+          })}
           <CPaginationItem
             aria-label="Next"
             onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} // Increase currentPage by 1, but not more than totalPages

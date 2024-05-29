@@ -44,13 +44,14 @@ const AddingArticleModal = ({ articleId }) => {
   const [name, setName] = useState('')
   const [title, setTitle] = useState('')
   const [datePublished, setDatePublished] = useState('')
-  const [status, setStatus] = useState(true)
   const [author, setAuthor] = useState([])
   const [inputAuthor, setInputAuthor] = useState('')
   const [url, setURL] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
   const [deleteauthormodal, showdeleteauthormodal] = useState(false)
   const [deleteIndex, setDeleteIndex] = useState(null)
+  const [sources, setSources] = useState([])
+  const [sourceschoosen, setSourceschoosen] = useState()
   const EditData = async (articleId) => {
     if (name === undefined || title === undefined || datePublished === undefined) {
       console.error('One of the values is undefined')
@@ -61,8 +62,8 @@ const AddingArticleModal = ({ articleId }) => {
       name: name,
       title: title,
       datePublished: new Date(),
-      active: status,
       url: url,
+      source: sourceschoosen,
       view: 0,
       author: author,
     })
@@ -89,7 +90,7 @@ const AddingArticleModal = ({ articleId }) => {
           setTitle(docSnap.data().title)
           setDatePublished(docSnap.data().datePublished?.toDate().toLocaleString() || '')
           setURL(docSnap.data().url)
-          setStatus(docSnap.data().active)
+          setSourceschoosen(docSnap.data().source)
           setAuthor(docSnap.data().author || [])
         } else {
           console.log('No such document!')
@@ -99,6 +100,20 @@ const AddingArticleModal = ({ articleId }) => {
       console.log('fetch data')
     }
   }, [visibleLg])
+    useEffect(() => {
+      const fetchSources = async () => {
+        const querySnapshot = await getDocs(collection(db, 'source'))
+        const tempArray = querySnapshot.docs.map((doc) => {
+          return {
+            ...doc.data(),
+            sourceId: doc.id,
+          }
+        })
+        setSources(tempArray)
+      }
+
+      fetchSources()
+    }, [])
   const closemodel = () => {
     setVisibleLg(false)
     setMessage({ text: '', type: '' })
@@ -133,22 +148,6 @@ const AddingArticleModal = ({ articleId }) => {
                   aria-label="Image URL"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
-                />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Author</CInputGroupText>
-                <CFormInput
-                  aria-label="Author"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </CInputGroup>
-              <CInputGroup className="custom-input-group">
-                <CInputGroupText className="custom-input-group-text">Title</CInputGroupText>
-                <CFormInput
-                  aria-label="Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
                 />
               </CInputGroup>
               <CInputGroup className="custom-input-group" style={{ width: 350 }}>
@@ -201,6 +200,31 @@ const AddingArticleModal = ({ articleId }) => {
               <br />
               <br />
               <CInputGroup className="custom-input-group">
+                <CInputGroupText className="custom-input-group-text">Title</CInputGroupText>
+                <CFormInput
+                  aria-label="Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </CInputGroup>
+              <CFormSelect
+                className="-input-select"
+                aria-label="Default select example"
+                value={sourceschoosen}
+                onChange={(e) => setSourceschoosen(e.target.value)}
+              >
+                {sources.map((source, index) => (
+                  <option
+                    key={index}
+                    value={JSON.stringify(source)}
+                    className="custom-input-select-active"
+                  >
+                    {source.name}
+                  </option>
+                ))}
+              </CFormSelect>
+              <br />
+              <CInputGroup className="custom-input-group">
                 <CInputGroupText className="custom-input-group-text">
                   Date Published
                 </CInputGroupText>
@@ -215,19 +239,6 @@ const AddingArticleModal = ({ articleId }) => {
                 <CInputGroupText className="custom-input-group-text">URL</CInputGroupText>
                 <CFormInput aria-label="URL" value={url} onChange={(e) => setURL(e.target.value)} />
               </CInputGroup>
-              <CFormSelect
-                className="-input-select"
-                aria-label="Default select example"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value={true} className="custom-input-select-active">
-                  Active
-                </option>
-                <option value={false} className="custom-input-select-inactive">
-                  Inactive
-                </option>
-              </CFormSelect>
             </CCardBody>
           </CCol>
         </CModalBody>
@@ -252,10 +263,8 @@ const AddingArticleModal = ({ articleId }) => {
 const EditArticleModal = ({ articleId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [image, setImage] = useState('')
-  const [name, setName] = useState('')
   const [title, setTitle] = useState('')
   const [datePublished, setDatePublished] = useState('')
-  const [status, setStatus] = useState(true)
   const [author, setAuthor] = useState([])
   const [inputAuthor, setInputAuthor] = useState('')
   const [url, setURL] = useState('')
@@ -297,11 +306,9 @@ const EditArticleModal = ({ articleId }) => {
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
           setImage(docSnap.data().image)
-          setName(docSnap.data().name)
           setTitle(docSnap.data().title)
           setDatePublished(docSnap.data().datePublished?.toDate().toLocaleString() || '')
           setURL(docSnap.data().url)
-          setStatus(docSnap.data().active)
           setSourceschoosen(docSnap.data().source)
           setAuthor(docSnap.data().author || [])
         } else {
@@ -548,7 +555,6 @@ const ShowArticle = () => {
       (new Date(article.datePublished.toDate() || '').toLocaleString() || '')
         .toLowerCase()
         .includes(search.toLowerCase()) ||
-      (article.active ? 'activating' : 'inactive').toLowerCase().includes(search.toLowerCase()) ||
       (article.url || '').toLowerCase().includes(search.toLowerCase()),
   )
 
