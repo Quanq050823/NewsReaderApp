@@ -21,6 +21,7 @@ import {
   CPaginationItem,
 } from '@coreui/react'
 import {
+  cilBan,
   cilPeople,
 } from '@coreui/icons'
 import { CAvatar } from '@coreui/react'
@@ -221,6 +222,83 @@ const DeleteUserModal = ({ userId }) => {
   )
 }
 
+const BanUserModal = ({ userId }) => {
+  const [visible, setVisible] = useState(false)
+  const [message, setMessage] = useState({ text: '', type: '' })
+  const [status, setStatus] = useState('')
+
+  const BanUser = async (userId) => {
+    const dbRef = doc(db, 'user', userId)
+    await updateDoc(dbRef, {
+      status: status,
+      lastActive: new Date(),
+    })
+      .then(() => {
+        setMessage({ text: 'Data saved successfully', type: 'success' })
+      })
+      .catch(() => {
+        setMessage({ text: 'Error adding document: ', type: 'error' })
+      })
+  }
+
+  useEffect(() => {
+    if (visible) {
+      const fetchData = async () => {
+        const docRef = doc(db, 'user', userId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          let userStatus = ''
+          if (data.status) {
+            const userStatusDoc = await getDoc(data.status)
+            userStatus = userStatusDoc.data().name
+          }
+          let userType = ''
+          if (data.type) {
+            const userTypeDoc = await getDoc(data.type)
+            userType = userTypeDoc.data().name
+          }
+          setStatus(`/source/${userStatus}`)
+        } else {
+          console.log('No such document!')
+        }
+      }
+      fetchData()
+    }
+  }, [visible, userId])
+  const closemodel = () => {
+    setVisible(false)
+    setMessage({ text: '', type: '' })
+  }
+  return (
+    <>
+      <CButton color="warning" onClick={() => setVisible(!visible)}>
+        <CIcon icon={cilBan} />
+      </CButton>
+      <CModal alignment="center" visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader className="custom-model-header-ban">
+          <CModalTitle>Delete User</CModalTitle>
+        </CModalHeader>
+        <CModalBody>Are you sure to ban this user?</CModalBody>
+        {message.text && (
+          <div className={`alert alert-${message.type === 'error' ? 'danger' : 'success'}`}>
+            {message.text}
+          </div>
+        )}
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => closemodel()}>
+            Close
+          </CButton>
+          <CButton color="warning" onClick={() => BanUser(userId)}>
+            Ban
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </>
+  )
+}
+
 const ShowUserTable = () => {
   let [User, setUser] = useState([])
   let [search, setSearch] = useState('')
@@ -323,10 +401,10 @@ const ShowUserTable = () => {
                         title={
                           user.userStatus === 'Active'
                             ? 'This account is Online'
-                            : 'This account is Offline'
+                            : 'This account is Banned'
                         }
                       >
-                        {user.userStatus === 'Active' ? 'Active' : 'Offline'}
+                        {user.userStatus === 'Active' ? 'Active' : 'Banned'}
                       </CButton>
                     </CTableDataCell>
                     <CTableDataCell>{user.email}</CTableDataCell>
@@ -387,6 +465,11 @@ const ShowUser = () => {
             const userTypeDoc = await getDoc(data.type)
             userType = userTypeDoc.data().name
           }
+          let userStatus = ''
+          if (data.status) {
+            const userStatusDoc = await getDoc(data.status)
+            userStatus = userStatusDoc.data().name
+          }          
           return {
             ...data,
             userId: doc.id,
@@ -472,6 +555,9 @@ const ShowUser = () => {
                       {user.dateCreated?.toDate().toLocaleString() || ''}
                     </CTableDataCell>
                     <CTableDataCell className="button-container">
+                      <div className="edit-modal">
+                        <BanUserModal userId={user.userId} />
+                      </div>
                       <div className="edit-modal">
                         <EditUserModal userId={user.userId} />
                       </div>

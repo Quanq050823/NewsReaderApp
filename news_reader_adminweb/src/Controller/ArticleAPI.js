@@ -435,7 +435,7 @@ const EditArticleModal = ({ articleId }) => {
                 {sources.map((source, index) => (
                   <option
                     key={index}
-                    value={`/source/${source.sourceId}`}
+                    value={`/source/${source.sourceId}`} // value={JSON.stringify(source)}
                     className="custom-input-select-active"
                   >
                     {source.name}
