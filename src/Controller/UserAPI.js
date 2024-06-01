@@ -39,7 +39,7 @@ import {cilColorBorder, cilDelete} from '@coreui/icons'
 import user_avatar from 'src/assets/images/avatars/user_avatar.jpg'
 
 
-
+//Editing User Account Functions - Tran Duc Quang
 const EditUserModal = ({ userId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [name, setName] = useState('')
@@ -174,6 +174,7 @@ const EditUserModal = ({ userId }) => {
   )
 }
 
+//Deleting User Account Functions - Tran Duc Quang
 const DeleteUserModal = ({ userId }) => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
@@ -222,10 +223,11 @@ const DeleteUserModal = ({ userId }) => {
   )
 }
 
+//Banning User Account Functions - Tran Duc Quang
 const BanUserModal = ({ userId }) => {
   const [visible, setVisible] = useState(false)
   const [message, setMessage] = useState({ text: '', type: '' })
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState()
 
   const BanUser = async (userId) => {
     const dbRef = doc(db, 'user', userId)
@@ -259,7 +261,7 @@ const BanUserModal = ({ userId }) => {
             const userTypeDoc = await getDoc(data.type)
             userType = userTypeDoc.data().name
           }
-          setStatus(`/source/${userStatus}`)
+          setStatus(doc(db, `/userStatus/${'suspended'}`))
         } else {
           console.log('No such document!')
         }
@@ -299,6 +301,7 @@ const BanUserModal = ({ userId }) => {
   )
 }
 
+//Show Recently User Account Functions - Tran Duc Quang
 const ShowUserTable = () => {
   let [User, setUser] = useState([])
   let [search, setSearch] = useState('')
@@ -324,6 +327,7 @@ const ShowUserTable = () => {
     }
     fetchData()
   }, [])
+  //Filtering User Account - Tran Duc Quang
   const filteredUsers = User.filter(
     (user) =>
       String(user.username).toLowerCase().includes(search.toLowerCase()) ||
@@ -451,6 +455,7 @@ const ShowUserTable = () => {
     )
 }
 
+//Show User Account Functions - Tran Duc Quang
 const ShowUser = () => {
   let [User, setUser] = useState([])
   let [search, setSearch] = useState('')
@@ -482,6 +487,7 @@ const ShowUser = () => {
     fetchData()
     
   }, [])
+  //Filtering User Account - Tran Duc Quang
     const filteredUsers = User.filter(
       (user) =>
         String(user.username).toLowerCase().includes(search.toLowerCase()) ||

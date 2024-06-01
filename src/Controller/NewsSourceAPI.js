@@ -28,7 +28,7 @@ import { db } from '../firebase'
 import { cilArrowRight, cilColorBorder, cilDelete, cilPlus, cilX } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-
+//Adding News Sources Functions - Tran Duc Quang
 const AddingSourceModal = ({ sourceId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [logo, setLogo] = useState('')
@@ -250,6 +250,7 @@ const AddingSourceModal = ({ sourceId }) => {
   )
 }
 
+//Editing News Sources Functions - Tran Duc Quang
 const EditSourceModal = ({sourceId}) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [logo, setLogo] = useState('')
@@ -472,6 +473,7 @@ const EditSourceModal = ({sourceId}) => {
   )
 }
 
+//Delete News Sources Functions - Tran Duc Quang
 const DeleteSourceModal = ({ sourceId }) => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
@@ -520,6 +522,7 @@ const DeleteSourceModal = ({ sourceId }) => {
   )
 }
 
+//Show News Sources Functions - Tran Duc Quang
 const ShowNewsSources = () => {
   let [newsSources, setNewsSources] = useState([])
   let [search, setSearch] = useState('')

@@ -29,6 +29,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
+//Adding Topic Functions - Tran Duc Quang
 export const AddingTopicModal = () => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [name, setName] = useState('')
@@ -108,6 +109,7 @@ export const AddingTopicModal = () => {
   )
 }
 
+//Edit Topic Functions - Tran Duc Quang
 const EditTopicModal = ({ topicId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [name, setName] = useState('')
@@ -217,6 +219,7 @@ const EditTopicModal = ({ topicId }) => {
   )
 }
 
+//Delete Topic Functions - Tran Duc Quang
 const DeleteTopicModal = ({ topicId }) => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
@@ -265,6 +268,7 @@ const DeleteTopicModal = ({ topicId }) => {
   )
 }
 
+//Show Topic Functions - Tran Duc Quang
 const ShowNewsTopic = () => {
   let [newsTopic, setNewsTopic] = useState([])
   let [search, setSearch] = useState('')
@@ -302,7 +306,6 @@ const ShowNewsTopic = () => {
         <CTable striped align="middle" className="mb-0 border" hover responsive>
           <CTableHead>
             <CTableRow>
-              {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
               <CTableHeaderCell className="bg-body-tertiary" scope="col">
                 Name
               </CTableHeaderCell>
@@ -321,7 +324,6 @@ const ShowNewsTopic = () => {
                 <>
                   <div key={index}></div>
                   <CTableRow>
-                    {/* <CTableHeaderCell scope="row"> {topic.topicId}</CTableHeaderCell> */}
                     <CTableDataCell>{topic.name}</CTableDataCell>
                     <CTableDataCell> {topic.description}</CTableDataCell>
                     <CTableDataCell>

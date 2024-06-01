@@ -38,6 +38,7 @@ import { db } from '../firebase'
 import { cilArrowRight, cilColorBorder, cilDelete, cilPlus, cilSearch } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
+//Adding Artical Functions - Tran Duc Quang
 const AddingArticleModal = ({ articleId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [image, setImage] = useState('')
@@ -260,6 +261,7 @@ const AddingArticleModal = ({ articleId }) => {
   )
 }
 
+//Editing Artical Functions - Tran Duc Quang
 const EditArticleModal = ({ articleId }) => {
   const [visibleLg, setVisibleLg] = useState(false)
   const [image, setImage] = useState('')
@@ -479,6 +481,7 @@ const EditArticleModal = ({ articleId }) => {
   )
 }
 
+//Deleting Artical Functions - Tran Duc Quang
 const DeleteArticleModal = ({ articleId }) => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
@@ -527,6 +530,7 @@ const DeleteArticleModal = ({ articleId }) => {
   )
 }
 
+//Show Artical Functions - Tran Duc Quang
 const ShowArticle = () => {
   let [article, setArticle] = useState([])
   let [search, setSearch] = useState('')
